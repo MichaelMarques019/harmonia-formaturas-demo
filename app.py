@@ -4,8 +4,8 @@
 #
 # Desenvolvido por: Michael Douglas Marques dos Santos
 # Curso: ADS 1° semestre — CEUNSP Salto, SP
-# GitHub: github.com/SEU_USUARIO
-# LinkedIn: linkedin.com/in/SEU-LINKEDIN
+# GitHub: https://github.com/MichaelMarques019
+# LinkedIn: https://www.linkedin.com/in/michael-marques019/
 #
 # VERSÃO DEMO — Para uso em produção configure as variáveis de ambiente:
 #   SECRET_KEY, ADMIN_PASSWORD, SITE_URL, MAIL_USERNAME, MAIL_PASSWORD
