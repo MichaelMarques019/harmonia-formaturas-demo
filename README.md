@@ -10,7 +10,7 @@
 
 **Sistema web desenvolvido do zero — do banco de dados ao deploy em produção.**
 
-[🔗 Ver ao vivo](https://harmonia-formaturas.onrender.com) · [💼 Portfólio](https://michael-douglas.netlify.app) · [👤 LinkedIn](https://linkedin.com/in/SEU-LINKEDIN)
+[🔗 Ver ao vivo](https://harmonia-formaturas.onrender.com) · [💼 Portfólio](https://michael-douglas.netlify.app) · [👤 LinkedIn](https://www.linkedin.com/in/michael-marques019/)
 
 </div>
 
@@ -215,9 +215,9 @@ Configure no painel do Render antes do deploy:
 18 anos · Análise e Desenvolvimento de Sistemas (1° semestre)
 CEUNSP — Salto, São Paulo
 
-[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://linkedin.com/in/SEU-LINKEDIN)
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-0077B5?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/michael-marques019/)
 [![Portfólio](https://img.shields.io/badge/Portfólio-FF2D55?style=for-the-badge&logo=firefox&logoColor=white)](https://michael-douglas.netlify.app)
-[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/SEU_USUARIO)
+[![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/MichaelMarques019)
 
 </div>
 
