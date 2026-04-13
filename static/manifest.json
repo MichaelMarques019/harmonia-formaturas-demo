@@ -1,0 +1,14 @@
+{
+  "name": "Harmonia Formaturas & Buffet",
+  "short_name": "Harmonia",
+  "description": "Acesse seus álbuns digitais de formatura",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#110E09",
+  "theme_color": "#C9A84C",
+  "orientation": "portrait-primary",
+  "icons": [
+    { "src": "/static/icon-192.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/static/icon-512.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

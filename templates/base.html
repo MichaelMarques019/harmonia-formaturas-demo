@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="{{ session.get('lang','pt') }}" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#110E09">
+<link rel="manifest" href="/static/manifest.json">
+<title>{% block title %}Harmonia Formaturas & Buffet{% endblock %}</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --gold:#C9A84C;--gold-lt:#E8D5A0;--gold-dk:#8A6A1F;--gold-glow:rgba(201,168,76,.12);
+  --bg:#110E09;--bg2:#1C1710;--bg3:#231D13;
+  --cream:#F5F0E8;--cream2:#D4C9B0;--cream3:#8C7E6A;
+  --line:rgba(201,168,76,.15);--line2:rgba(201,168,76,.28);
+  --green:#4CAF7D;--orange:#E8A73A;--red:#D95F5F;--gray-dot:#555048;
+  --blue:#5B8FD4;
+  --success-bg:rgba(76,175,125,.1);--success-border:rgba(76,175,125,.25);
+  --danger-bg:rgba(217,95,95,.1);--danger-border:rgba(217,95,95,.25);
+  --warn-bg:rgba(232,167,58,.1);--warn-border:rgba(232,167,58,.25);
+  --blue-bg:rgba(91,143,212,.1);--blue-border:rgba(91,143,212,.25);
+}
+[data-theme="light"]{
+  --bg:#FAF7F2;--bg2:#FFFFFF;--bg3:#F2EDE3;
+  --cream:#2D261A;--cream2:#4A3F30;--cream3:#7A6E5E;
+  --line:rgba(139,107,40,.18);--line2:rgba(139,107,40,.32);
+  --gold:#8A6A1F;--gold-lt:#6B4F10;--gold-glow:rgba(139,107,40,.08);
+  --gray-dot:#AAA;
+}
+body{font-family:'Jost',sans-serif;background:var(--bg);color:var(--cream);min-height:100vh;transition:background .3s,color .3s}
+a{color:var(--gold);text-decoration:none}a:hover{color:var(--gold-lt)}
+
+/* NAV */
+.nav{display:flex;align-items:center;justify-content:space-between;padding:0 22px;height:54px;
+     background:rgba(17,14,9,.97);border-bottom:.5px solid var(--line);position:sticky;top:0;z-index:200}
+[data-theme="light"] .nav{background:rgba(250,247,242,.97)}
+.brand{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:2.5px;color:var(--gold);text-transform:uppercase;font-weight:400;white-space:nowrap;flex-shrink:0}
+.brand em{font-style:italic;font-weight:300}
+.nav-right{display:flex;align-items:center;gap:2px;flex-wrap:nowrap}
+.nav-link{padding:6px 11px;border-radius:2px;font-size:11px;font-weight:500;color:var(--cream3);transition:all .18s;letter-spacing:.8px;text-transform:uppercase;white-space:nowrap}
+.nav-link:hover{color:var(--gold)}
+.nav-link.active{background:var(--gold-glow);color:var(--gold);border:.5px solid var(--line2)}
+.nav-link.vlink{color:var(--blue)}
+.nav-link.vlink:hover,.nav-link.vlink.active{background:var(--blue-bg);color:var(--blue);border:.5px solid var(--blue-border)}
+/* Notification bell */
+.notif-btn{position:relative;background:none;border:none;color:var(--cream3);cursor:pointer;
+           padding:6px 8px;font-size:16px;line-height:1;transition:color .2s}
+.notif-btn:hover{color:var(--gold)}
+.notif-badge{position:absolute;top:2px;right:2px;background:var(--red);color:#fff;
+             font-size:9px;font-weight:700;border-radius:50%;width:14px;height:14px;
+             display:flex;align-items:center;justify-content:center;line-height:1}
+.notif-panel{position:absolute;top:54px;right:0;width:320px;background:var(--bg2);
+             border:.5px solid var(--line2);z-index:300;display:none;max-height:400px;overflow-y:auto}
+.notif-panel.open{display:block}
+.notif-header{padding:12px 16px;border-bottom:.5px solid var(--line);display:flex;
+              align-items:center;justify-content:space-between;font-size:12px;color:var(--cream3)}
+.notif-item{padding:12px 16px;border-bottom:.5px solid rgba(255,255,255,.04);font-size:12px}
+.notif-item:hover{background:rgba(255,255,255,.02)}
+.notif-item .titulo{color:var(--cream);margin-bottom:3px}
+.notif-item .tempo{font-size:10px;color:var(--cream3)}
+.notif-empty{padding:20px;text-align:center;font-size:13px;color:var(--cream3)}
+/* Lang switcher */
+.lang-sw{display:flex;gap:3px;align-items:center;margin-left:4px}
+.lang-btn{padding:4px 7px;font-size:10px;font-weight:500;color:var(--cream3);
+          border:.5px solid transparent;border-radius:2px;cursor:pointer;transition:all .15s;text-decoration:none;letter-spacing:.5px}
+.lang-btn:hover{color:var(--gold);border-color:var(--line)}
+.lang-btn.active{color:var(--gold);border-color:var(--line2);background:var(--gold-glow)}
+/* theme btn */
+.theme-btn{background:none;border:.5px solid var(--line);border-radius:20px;padding:4px 10px;
+           color:var(--cream3);font-size:13px;cursor:pointer;transition:all .2s;margin-left:4px}
+.theme-btn:hover{border-color:var(--line2);color:var(--cream)}
+
+/* FLASH */
+.flash-wrap{padding:10px 22px 0}
+.alert{padding:11px 16px;font-size:13px;border-radius:2px;margin-bottom:7px;border-left:2px solid}
+.alert-success{background:var(--success-bg);color:var(--green);border-color:var(--green)}
+.alert-danger {background:var(--danger-bg); color:var(--red);  border-color:var(--red)}
+.alert-warning{background:var(--warn-bg);   color:var(--orange);border-color:var(--orange)}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:8px;padding:11px 24px;font-size:11px;font-weight:500;letter-spacing:1.8px;text-transform:uppercase;border:none;border-radius:1px;cursor:pointer;transition:all .2s;font-family:'Jost',sans-serif;text-decoration:none}
+.btn-gold{background:var(--gold);color:var(--bg)}.btn-gold:hover{background:var(--gold-lt);color:var(--bg)}
+.btn-outline{background:transparent;color:var(--gold);border:.5px solid var(--line2)}.btn-outline:hover{background:var(--gold-glow);color:var(--gold)}
+.btn-ghost{background:transparent;color:var(--cream3);border:.5px solid rgba(128,128,128,.2)}.btn-ghost:hover{background:rgba(128,128,128,.06);color:var(--cream)}
+.btn-danger{background:var(--danger-bg);color:var(--red);border:.5px solid var(--danger-border)}
+.btn-blue{background:var(--blue-bg);color:var(--blue);border:.5px solid var(--blue-border)}
+.btn-wa{background:rgba(37,211,102,.08);color:#81E09C;border:.5px solid rgba(37,211,102,.22)}.btn-wa:hover{background:rgba(37,211,102,.16)}
+.btn-sm{padding:7px 14px;font-size:10px}
+
+/* FORM */
+.fg{margin-bottom:16px}
+.fg label{display:block;font-size:10px;font-weight:500;letter-spacing:2px;text-transform:uppercase;color:var(--cream3);margin-bottom:7px}
+.fg input,.fg select,.fg textarea{width:100%;padding:11px 13px;background:rgba(128,128,128,.05);border:.5px solid var(--line);color:var(--cream);font-size:13px;font-family:'Jost',sans-serif;outline:none;transition:border-color .2s;border-radius:1px}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--line2)}
+.fg input::placeholder,.fg textarea::placeholder{color:rgba(128,128,128,.3)}
+.fg select option{background:var(--bg2);color:var(--cream)}
+.frow{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-hint{font-size:11px;color:var(--cream3);margin-top:4px}
+
+/* CARDS */
+.card{background:var(--bg2);border:.5px solid var(--line);border-radius:2px;padding:24px 26px;transition:border-color .2s}
+.card:hover{border-color:var(--line2)}
+.section-lbl{font-size:10px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--cream3);margin-bottom:12px;padding-bottom:8px;border-bottom:.5px solid rgba(128,128,128,.08)}
+
+/* BADGE */
+.badge{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;font-size:10px;font-weight:500;letter-spacing:.8px;text-transform:uppercase;border-radius:1px}
+.badge-ok  {background:var(--success-bg);color:var(--green); border:.5px solid var(--success-border)}
+.badge-warn{background:var(--warn-bg);   color:var(--orange);border:.5px solid var(--warn-border)}
+.badge-exp {background:var(--danger-bg); color:var(--red);   border:.5px solid var(--danger-border)}
+.badge-blue{background:var(--blue-bg);   color:var(--blue);  border:.5px solid var(--blue-border)}
+
+/* STATUS DOT */
+.sdot{display:flex;align-items:center;gap:5px;font-size:12px;color:var(--cream3)}
+.dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
+.dot-g{background:var(--green)}.dot-o{background:var(--orange)}.dot-r{background:var(--red)}.dot-gr{background:var(--gray-dot)}
+
+/* PROGRESS */
+.prog-wrap{margin-bottom:16px}
+.prog-meta{display:flex;justify-content:space-between;font-size:11px;color:var(--cream3);margin-bottom:6px}
+.prog-meta strong{color:var(--cream)}
+.prog-track{height:3px;background:rgba(128,128,128,.1);overflow:hidden}
+.prog-fill{height:100%;transition:width .6s}
+.fill-ok{background:var(--green)}.fill-warn{background:var(--orange)}.fill-low{background:var(--red)}
+
+/* NOTICE */
+.notice{background:rgba(232,167,58,.07);border-left:2px solid var(--orange);padding:12px 16px;font-size:12px;color:var(--orange);line-height:1.65;margin-bottom:20px}
+
+/* MSG BOX */
+.msg-box{background:rgba(128,128,128,.05);border:.5px solid rgba(128,128,128,.1);padding:14px;font-size:13px;line-height:1.75;color:var(--cream);white-space:pre-wrap;max-height:250px;overflow-y:auto;border-radius:1px}
+
+/* TAGS */
+.tag{display:inline-flex;align-items:center;padding:2px 9px;border-radius:20px;font-size:10px;font-weight:500;letter-spacing:.5px;margin:2px 3px 2px 0}
+.tag-gold  {background:rgba(201,168,76,.12);color:var(--gold);  border:.5px solid rgba(201,168,76,.25)}
+.tag-green {background:var(--success-bg);color:var(--green); border:.5px solid var(--success-border)}
+.tag-blue  {background:var(--blue-bg);   color:var(--blue);  border:.5px solid var(--blue-border)}
+.tag-red   {background:var(--danger-bg); color:var(--red);   border:.5px solid var(--danger-border)}
+.tag-orange{background:var(--warn-bg);   color:var(--orange);border:.5px solid var(--warn-border)}
+
+/* CONFIRM */
+.confirm-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);display:none;align-items:center;justify-content:center;z-index:9999;padding:20px}
+.confirm-overlay.open{display:flex}
+.confirm-box{background:var(--bg2);border:.5px solid var(--line2);padding:32px;max-width:360px;width:100%;text-align:center}
+.confirm-box h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--cream);margin-bottom:8px}
+.confirm-box p{font-size:13px;color:var(--cream3);margin-bottom:22px;line-height:1.6}
+.confirm-btns{display:flex;gap:10px;justify-content:center}
+
+/* SUPORTE */
+.suporte-btn{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:#25D366;display:flex;align-items:center;justify-content:center;font-size:24px;cursor:pointer;z-index:500;text-decoration:none;box-shadow:0 4px 14px rgba(37,211,102,.35);transition:transform .2s}
+.suporte-btn:hover{transform:scale(1.08)}
+.suporte-tooltip{position:fixed;bottom:86px;right:24px;background:var(--bg2);border:.5px solid var(--line2);padding:8px 14px;font-size:12px;color:var(--cream2);border-radius:2px;white-space:nowrap;z-index:500;pointer-events:none;opacity:0;transition:opacity .2s}
+.suporte-btn:hover + .suporte-tooltip{opacity:1}
+
+/* UPLOAD ZONE */
+.upzone{border:.5px dashed var(--line2);padding:28px 24px;text-align:center;cursor:pointer;transition:all .2s;position:relative;background:rgba(201,168,76,.02);border-radius:1px}
+.upzone:hover,.upzone.drag{background:var(--gold-glow);border-color:rgba(201,168,76,.5)}
+.upzone input[type=file]{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+.upzone-txt strong{display:block;color:var(--gold);font-size:13px;margin-bottom:4px}
+.upzone-txt span{font-size:12px;color:var(--cream3)}
+
+/* OR DIV */
+.or-div{display:flex;align-items:center;gap:10px;margin:10px 0}
+.or-div::before,.or-div::after{content:'';flex:1;height:.5px;background:var(--line)}
+.or-div span{font-size:10px;color:var(--cream3);letter-spacing:1px;text-transform:uppercase;white-space:nowrap}
+
+/* GRID CARDS */
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:12px;margin-top:16px}
+.escola-card{background:var(--bg2);border:.5px solid var(--line);border-radius:2px;padding:20px;cursor:pointer;transition:all .2s;text-decoration:none;display:block}
+.escola-card:hover{border-color:var(--blue-border);background:var(--blue-bg)}
+.escola-card h3{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:var(--cream);margin-bottom:5px}
+.escola-card .count{font-size:11px;color:var(--blue);margin-top:8px}
+.breadcrumb{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--cream3);margin-bottom:20px;flex-wrap:wrap}
+.breadcrumb a{color:var(--blue)}.breadcrumb span{opacity:.35}
+
+/* SESSION TIMEOUT WARNING */
+.session-warn{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
+              background:var(--warn-bg);border:.5px solid var(--warn-border);
+              padding:12px 20px;border-radius:2px;font-size:12px;color:var(--orange);
+              z-index:1000;display:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.3)}
+.session-warn.show{display:block}
+
+@media(max-width:620px){.nav{padding:0 12px}.brand{font-size:11px;letter-spacing:1px}.frow{grid-template-columns:1fr}.nav-link{padding:5px 7px;font-size:10px;letter-spacing:.3px}}
+
+/* Language switcher */
+.lang-switcher{display:flex;gap:3px;align-items:center;margin-left:4px}
+.lang-btn{padding:4px 8px;border:.5px solid var(--line);border-radius:2px;
+          font-size:10px;font-weight:500;color:var(--cream3);background:transparent;
+          cursor:pointer;text-decoration:none;transition:all .18s;letter-spacing:.5px;text-transform:uppercase}
+.lang-btn:hover{color:var(--gold);border-color:var(--line2)}
+.lang-btn.ativo{background:var(--gold-glow);color:var(--gold);border-color:var(--line2)}
+/* Notif bell */
+.notif-btn{position:relative;padding:6px 10px;color:var(--cream3);text-decoration:none;font-size:16px;transition:color .2s}
+.notif-btn:hover{color:var(--gold)}
+.notif-badge{position:absolute;top:2px;right:2px;width:8px;height:8px;background:var(--red);border-radius:50%}
+</style>
+{% block extra_head %}{% endblock %}
+</head>
+<body>
+
+<nav class="nav">
+  <a href="{{ url_for('index') }}" class="brand">Harmonia <em>Formaturas</em></a>
+  <div class="nav-right">
+    {% if session.get('admin') %}
+      <a href="{{ url_for('admin_painel') }}"         class="nav-link {% if request.endpoint=='admin_painel' %}active{% endif %}">Clientes</a>
+      <a href="{{ url_for('admin_lote_whatsapp') }}"  class="nav-link">📲</a>
+      <a href="{{ url_for('admin_arquivos') }}"        class="nav-link">📦</a>
+      <a href="{{ url_for('admin_relatorio_pdf') }}"   class="nav-link" target="_blank">📄</a>
+      <a href="{{ url_for('admin_configuracoes') }}"  class="nav-link">⚙</a>
+      <a href="{{ url_for('admin_backup') }}"          class="nav-link">💾</a>
+      <!-- Notification Bell -->
+      <div style="position:relative">
+        <button class="notif-btn" onclick="toggleNotif()" id="notif-btn">
+          🔔
+          {% if notifs_nao_lidas is defined and notifs_nao_lidas %}
+            <span class="notif-badge">{{ notifs_nao_lidas|length if notifs_nao_lidas|length < 10 else '9+' }}</span>
+          {% endif %}
+        </button>
+        <div class="notif-panel" id="notif-panel">
+          <div class="notif-header">
+            <span>Notificações</span>
+            <button onclick="lerNotificacoes()" style="background:none;border:none;color:var(--blue);cursor:pointer;font-size:11px;font-family:'Jost',sans-serif">Marcar lidas</button>
+          </div>
+          {% if notifs_nao_lidas is defined and notifs_nao_lidas %}
+            {% for n in notifs_nao_lidas %}
+            <div class="notif-item">
+              <div class="titulo">
+                {% if n.tipo=='expiracao' %}⏰{% elif n.tipo=='sem_download' %}📭{% elif n.tipo=='backup' %}💾{% elif n.tipo=='avaliacao' %}⭐{% else %}📋{% endif %}
+                {% if n.link %}<a href="{{ n.link }}" style="color:var(--cream)">{{ n.titulo }}</a>{% else %}{{ n.titulo }}{% endif %}
+              </div>
+              <div class="tempo">{{ n.criado_em.strftime('%d/%m %H:%M') }}</div>
+            </div>
+            {% endfor %}
+          {% else %}
+            <div class="notif-empty">Nenhuma notificação pendente</div>
+          {% endif %}
+        </div>
+      </div>
+      <a href="{{ url_for('admin_logout') }}" class="nav-link">Sair</a>
+    {% elif session.get('vendedor_id') %}
+      <a href="{{ url_for('vendedor_painel') }}"   class="nav-link vlink">Catálogo</a>
+      <a href="{{ url_for('vendedor_agenda') }}"   class="nav-link vlink">Agenda</a>
+      <a href="{{ url_for('vendedor_historico') }}" class="nav-link vlink">Histórico</a>
+      <a href="{{ url_for('vendedor_logout') }}"   class="nav-link">Sair</a>
+    {% elif session.get('cliente_id') %}
+      <a href="{{ url_for('area_cliente') }}"     class="nav-link active">{{ t('my_albums') }}</a>
+      <a href="{{ url_for('historico_acessos') }}" class="nav-link">📋</a>
+      <a href="{{ url_for('logout') }}"            class="nav-link">{{ t('btn_logout') }}</a>
+    {% else %}
+      <a href="{{ url_for('login') }}"          class="nav-link {% if request.endpoint=='login' %}active{% endif %}">{{ t('login_title') }}</a>
+      <a href="{{ url_for('vendedor_login') }}" class="nav-link vlink">Vendedor</a>
+      <a href="{{ url_for('admin_login') }}"    class="nav-link">Admin</a>
+    {% endif %}
+    <!-- Language switcher -->
+    <div class="lang-sw">
+      <a href="{{ url_for('set_lang', lang='pt') }}" class="lang-btn {% if session.get('lang','pt')=='pt' %}active{% endif %}">PT</a>
+      <a href="{{ url_for('set_lang', lang='en') }}" class="lang-btn {% if session.get('lang')=='en' %}active{% endif %}">EN</a>
+      <a href="{{ url_for('set_lang', lang='es') }}" class="lang-btn {% if session.get('lang')=='es' %}active{% endif %}">ES</a>
+    </div>
+    <button class="theme-btn" onclick="toggleTheme()" id="theme-btn">🌙</button>
+  </div>
+</nav>
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="flash-wrap">
+      {% for cat, msg in messages %}
+        <div class="alert alert-{{ cat }}">{{ msg }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+{% if session.get('cliente_id') and suporte is defined and suporte %}
+<a href="https://wa.me/{{ suporte }}" target="_blank" class="suporte-btn">💬</a>
+<div class="suporte-tooltip">{{ t('support') }}</div>
+{% endif %}
+
+<!-- Session timeout warning -->
+{% if session.get('cliente_id') or session.get('vendedor_id') %}
+<div class="session-warn" id="session-warn">⏱ Sua sessão expira em 5 minutos por inatividade.</div>
+{% endif %}
+
+<!-- Confirm dialog -->
+<div class="confirm-overlay" id="confirm-overlay">
+  <div class="confirm-box">
+    <h3 id="confirm-title">Confirmar</h3>
+    <p id="confirm-msg"></p>
+    <div class="confirm-btns">
+      <button class="btn btn-ghost btn-sm" onclick="closeConfirm()">Cancelar</button>
+      <form id="confirm-form" method="POST" style="display:inline">
+        <button type="submit" class="btn btn-danger btn-sm">Confirmar</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+// Theme
+(function(){
+  var t=localStorage.getItem('theme')||'dark';
+  document.documentElement.setAttribute('data-theme',t);
+  document.getElementById('theme-btn').textContent=t==='dark'?'🌙':'☀️';
+})();
+function toggleTheme(){
+  var cur=document.documentElement.getAttribute('data-theme');
+  var next=cur==='dark'?'light':'dark';
+  document.documentElement.setAttribute('data-theme',next);
+  localStorage.setItem('theme',next);
+  document.getElementById('theme-btn').textContent=next==='dark'?'🌙':'☀️';
+}
+
+// Confirm
+function confirmAction(url,title,msg){
+  document.getElementById('confirm-title').textContent=title;
+  document.getElementById('confirm-msg').textContent=msg;
+  document.getElementById('confirm-form').action=url;
+  document.getElementById('confirm-overlay').classList.add('open');
+}
+function closeConfirm(){document.getElementById('confirm-overlay').classList.remove('open');}
+document.getElementById('confirm-overlay').addEventListener('click',function(e){if(e.target===this)closeConfirm();});
+
+// Notifications
+function toggleNotif(){
+  var p=document.getElementById('notif-panel');
+  if(p) p.classList.toggle('open');
+}
+function lerNotificacoes(){
+  fetch('{{ url_for("admin_ler_notificacoes") }}',{method:'POST'})
+    .then(()=>{ var b=document.querySelector('.notif-badge'); if(b) b.remove(); document.getElementById('notif-panel').classList.remove('open'); });
+}
+document.addEventListener('click',function(e){
+  var p=document.getElementById('notif-panel');
+  if(p && p.classList.contains('open') && !p.contains(e.target) && e.target.id!=='notif-btn') p.classList.remove('open');
+});
+
+// Session timeout warning (show 5 min before timeout)
+{% if session.get('cliente_id') or session.get('vendedor_id') %}
+(function(){
+  var timeout = {{ config.get('SESSION_TIMEOUT_MINUTES', 60) }} * 60 * 1000;
+  var warnAt  = timeout - 5*60*1000;
+  var warn    = document.getElementById('session-warn');
+  if(warnAt > 0) setTimeout(function(){ if(warn) warn.classList.add('show'); }, warnAt);
+})();
+{% endif %}
+
+// PWA
+if('serviceWorker' in navigator){
+  window.addEventListener('load',function(){
+    navigator.serviceWorker.register('/static/sw.js').catch(function(){});
+  });
+}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

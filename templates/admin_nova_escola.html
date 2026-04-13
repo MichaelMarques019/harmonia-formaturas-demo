@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Nova Escola — Harmonia{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  <h2>Nova escola</h2>
+  <p class="sub">Crie uma escola para organizar os álbuns por instituição.</p>
+  <form method="POST">
+    <div class="fg"><label>Nome da escola *</label><input type="text" name="nome" placeholder="Colégio São Paulo — Turma 2024" required autofocus></div>
+    <div class="form-actions">
+      <a href="{{ url_for('admin_painel') }}" class="btn btn-ghost btn-sm">Cancelar</a>
+      <button type="submit" class="btn btn-gold btn-sm">Criar escola</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

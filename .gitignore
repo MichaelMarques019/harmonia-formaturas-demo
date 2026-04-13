@@ -1,0 +1,56 @@
+# ═══════════════════════════════════════════════
+#  .gitignore — Harmonia Formaturas & Buffet
+#  O que NÃO vai para o GitHub
+# ═══════════════════════════════════════════════
+
+# ── Banco de dados (NUNCA suba) ────────────────
+instance/
+*.db
+*.sqlite
+*.sqlite3
+
+# ── Arquivos dos clientes (NUNCA suba) ─────────
+uploads/
+
+# ── Senhas e chaves secretas (NUNCA suba) ──────
+.env
+.env.local
+.env.production
+*.key
+secrets.py
+
+# ── Python ─────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# ── Ambiente virtual (cada máquina tem o seu) ──
+venv/
+.venv/
+env/
+ENV/
+.env/
+
+# ── IDEs ────────────────────────────────────────
+.idea/
+.vscode/
+*.iml
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# ── Logs ────────────────────────────────────────
+*.log
+logs/
+
+# ── Temporários ─────────────────────────────────
+*.tmp
+*.bak
+tmp/

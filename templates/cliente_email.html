@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% block title %}Meu E-mail — Harmonia{% endblock %}
+{% block extra_head %}
+<style>
+.wrap{max-width:500px;margin:0 auto;padding:48px 24px}
+.wrap h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:var(--cream);margin-bottom:6px}
+.wrap .sub{font-size:13px;color:var(--cream3);margin-bottom:32px}
+.form-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:24px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <h2>📧 Lembretes por e-mail</h2>
+  <p class="sub">Cadastre seu e-mail para receber aviso automático quando o prazo estiver próximo.</p>
+  <form method="POST">
+    <div class="fg">
+      <label>Seu e-mail</label>
+      <input type="email" name="email"
+             value="{{ cliente.email_obj.email if cliente.email_obj else '' }}"
+             placeholder="seu@email.com" required autofocus>
+      <p class="form-hint">Você receberá um link de confirmação antes de ativarmos os lembretes.</p>
+    </div>
+    <div class="form-actions">
+      <a href="{{ url_for('area_cliente') }}" class="btn btn-ghost btn-sm">Cancelar</a>
+      <button type="submit" class="btn btn-gold btn-sm">Salvar e confirmar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% block title %}Histórico — Vendedor{% endblock %}
+{% block extra_head %}
+<style>
+.wrap{max-width:860px;margin:0 auto;padding:40px 24px}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
+.page-hd h2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:var(--cream)}
+.resumo{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);margin-bottom:28px}
+.resumo-item{background:var(--bg2);padding:16px 20px;text-align:center}
+.resumo-v{font-family:'Cormorant Garamond',serif;font-size:30px;font-weight:300;line-height:1}
+.resumo-l{font-size:10px;color:var(--cream3);letter-spacing:1.5px;text-transform:uppercase;margin-top:5px}
+.hist-row{display:grid;grid-template-columns:1.4fr 1.2fr 100px 1fr;align-items:center;gap:12px;
+          padding:12px 16px;background:var(--bg2);border:.5px solid var(--line);margin-bottom:6px;font-size:13px}
+.hist-row:hover{border-color:var(--line2)}
+.hist-head{background:transparent!important;border:none!important;margin-bottom:0!important;
+           font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--cream3)}
+.status-pill{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:500;letter-spacing:.5px;text-transform:uppercase}
+.pill-vendido  {background:var(--success-bg);color:var(--green);border:.5px solid var(--success-border)}
+.pill-interesse{background:var(--warn-bg);   color:var(--orange);border:.5px solid var(--warn-border)}
+.pill-nao_quis {background:var(--danger-bg); color:var(--red);   border:.5px solid var(--danger-border)}
+@media(max-width:640px){.hist-row{grid-template-columns:1fr auto}.hist-head{display:none}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="page-hd">
+    <div>
+      <h2>Histórico de atendimentos</h2>
+      <p style="font-size:13px;color:var(--cream3)">{{ vendedor.nome }}</p>
+    </div>
+    <a href="{{ url_for('vendedor_painel') }}" class="btn btn-ghost btn-sm">← Voltar</a>
+  </div>
+
+  {% set total = anotacoes|length %}
+  {% set vendidos = anotacoes|selectattr('status','equalto','vendido')|list|length %}
+  {% set interesse = anotacoes|selectattr('status','equalto','interesse')|list|length %}
+  <div class="resumo">
+    <div class="resumo-item"><div class="resumo-v" style="color:var(--gold)">{{ total }}</div><div class="resumo-l">Total</div></div>
+    <div class="resumo-item"><div class="resumo-v" style="color:var(--green)">{{ vendidos }}</div><div class="resumo-l">Vendidos</div></div>
+    <div class="resumo-item"><div class="resumo-v" style="color:var(--orange)">{{ interesse }}</div><div class="resumo-l">Interesse</div></div>
+  </div>
+
+  {% if anotacoes %}
+    <div class="hist-row hist-head">
+      <span>Cliente</span><span>Álbum / Escola</span><span>Status</span><span>Data</span>
+    </div>
+    {% for a in anotacoes %}
+    <div class="hist-row">
+      <div>
+        <div style="font-weight:500;color:var(--cream)">{{ a.nome_cliente }}</div>
+        {% if a.telefone %}<div style="font-size:11px;color:var(--cream3)">{{ a.telefone }}</div>{% endif %}
+        {% if a.obs %}<div style="font-size:11px;color:var(--cream3);margin-top:3px;font-style:italic">{{ a.obs }}</div>{% endif %}
+      </div>
+      <div>
+        <div style="color:var(--cream2)">{{ a.album.titulo }}</div>
+        <div style="font-size:11px;color:var(--cream3)">{{ a.album.escola.nome }}</div>
+      </div>
+      <div><span class="status-pill pill-{{ a.status }}">
+        {% if a.status == 'vendido' %}✓ Vendido{% elif a.status == 'interesse' %}Interesse{% else %}Não quis{% endif %}
+      </span></div>
+      <div style="font-size:12px;color:var(--cream3)">{{ a.criado_em.strftime('%d/%m/%Y') }}<br><span style="font-size:10px">{{ a.criado_em.strftime('%H:%M') }}</span></div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align:center;padding:48px;background:var(--bg2);border:.5px solid var(--line)">
+      <p style="font-size:13px;color:var(--cream3)">Nenhum atendimento registrado ainda.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

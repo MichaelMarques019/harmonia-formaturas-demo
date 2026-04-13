@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}{{ t('history_title') }} — Harmonia{% endblock %}
+{% block extra_head %}
+<style>
+.wrap{max-width:680px;margin:0 auto;padding:44px 22px}
+.wrap h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:var(--cream);margin-bottom:6px}
+.wrap .sub{font-size:13px;color:var(--cream3);margin-bottom:28px}
+.album-block{margin-bottom:28px}
+.album-block h3{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:var(--cream);margin-bottom:12px;padding-bottom:8px;border-bottom:.5px solid var(--line)}
+.hist-row{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--bg2);border:.5px solid var(--line);margin-bottom:6px;border-radius:1px}
+.hist-ico{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0}
+.hist-txt{flex:1;font-size:13px;color:var(--cream2)}
+.hist-dt{font-size:11px;color:var(--cream3);white-space:nowrap}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <h2>{{ t('history_title') }}</h2>
+  <p class="sub">Olá, {{ cliente.nome.split()[0] }}! Aqui estão todos os seus acessos.</p>
+
+  {% if cliente.acessos %}
+    {% for acesso in cliente.acessos %}
+    <div class="album-block">
+      <h3>{{ acesso.album.titulo }}</h3>
+      {% set hist = acesso.get_historico() %}
+      {% if hist %}
+        {% for entry in hist %}
+        <div class="hist-row">
+          <div class="hist-ico" style="background:{% if entry.acao=='Baixou' %}var(--success-bg){% else %}var(--warn-bg){% endif %}">
+            {% if entry.acao=='Baixou' %}⬇{% else %}👁{% endif %}
+          </div>
+          <div class="hist-txt">{{ entry.acao }}</div>
+          <div class="hist-dt">{{ entry.dt }}</div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="font-size:13px;color:var(--cream3);padding:12px 0">{{ t('history_empty') }}</p>
+      {% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <p style="font-size:13px;color:var(--cream3)">{{ t('history_empty') }}</p>
+  {% endif %}
+
+  <a href="{{ url_for('area_cliente') }}" class="btn btn-ghost btn-sm">← Voltar</a>
+</div>
+{% endblock %}

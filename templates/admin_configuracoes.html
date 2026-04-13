@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% block title %}Configurações — Admin{% endblock %}
+{% block extra_head %}
+<style>
+.wrap{max-width:720px;margin:0 auto;padding:40px 24px}
+.wrap h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:var(--cream);margin-bottom:6px}
+.wrap .sub{font-size:13px;color:var(--cream3);margin-bottom:32px}
+.section-sep{font-size:10px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--gold);opacity:.6;margin:28px 0 16px;padding-bottom:8px;border-bottom:.5px solid var(--line)}
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:14px 0;border-bottom:.5px solid rgba(128,128,128,.08)}
+.toggle-info h4{font-size:14px;color:var(--cream);margin-bottom:3px}
+.toggle-info p{font-size:12px;color:var(--cream3)}
+.toggle{position:relative;width:44px;height:24px;flex-shrink:0}
+.toggle input{opacity:0;width:0;height:0}
+.toggle-slider{position:absolute;inset:0;background:rgba(128,128,128,.2);border-radius:24px;cursor:pointer;transition:.3s}
+.toggle-slider::before{content:'';position:absolute;width:18px;height:18px;left:3px;bottom:3px;background:#fff;border-radius:50%;transition:.3s}
+.toggle input:checked + .toggle-slider{background:var(--orange)}
+.toggle input:checked + .toggle-slider::before{transform:translateX(20px)}
+.tmpl-vars{background:rgba(128,128,128,.04);border:.5px solid var(--line);padding:12px 16px;border-radius:1px;margin-top:8px;font-size:12px;color:var(--cream3);line-height:1.8}
+.tmpl-vars code{color:var(--gold);background:rgba(201,168,76,.08);padding:1px 5px;border-radius:2px}
+.form-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:28px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <h2>⚙ Configurações</h2>
+  <p class="sub">Personalize o sistema sem precisar mexer no código.</p>
+
+  <form method="POST">
+    <p class="section-sep">Geral</p>
+    <div class="fg">
+      <label>Dias de prazo para download</label>
+      <input type="number" name="dias_expiracao" value="{{ cfg.dias_expiracao }}" min="1" max="30" style="max-width:120px">
+      <p class="form-hint">Quantos dias o cliente tem para baixar após receber o link.</p>
+    </div>
+    <div class="fg">
+      <label>WhatsApp de suporte (número da Harmonia)</label>
+      <input type="text" name="suporte_whatsapp" value="{{ cfg.suporte_whatsapp }}" placeholder="5519999998888">
+      <p class="form-hint">Aparece como botão flutuante na área do cliente. Formato: 55 + DDD + número.</p>
+    </div>
+
+
+    <p class="section-sep">E-mail automático (Flask-Mail)</p>
+    <div style="background:var(--blue-bg);border:.5px solid var(--blue-border);border-radius:1px;padding:12px 16px;margin-bottom:16px;font-size:12px;color:var(--blue);line-height:1.7">
+      Para ativar o envio de e-mails configure as variáveis de ambiente no Render:<br>
+      <code style="background:rgba(91,143,212,.15);padding:1px 6px;border-radius:2px">MAIL_USERNAME</code> = seu Gmail &nbsp;·&nbsp;
+      <code style="background:rgba(91,143,212,.15);padding:1px 6px;border-radius:2px">MAIL_PASSWORD</code> = senha de app do Gmail
+    </div>
+
+    <p class="section-sep">Tempo de sessão</p>
+    <div class="frow">
+      <div class="fg">
+        <label>Timeout do cliente (minutos)</label>
+        <input type="number" name="session_timeout_cliente" value="{{ cfg.get('session_timeout_cliente', '60') }}" min="5" max="480" style="max-width:120px">
+        <p class="form-hint">Após esse tempo sem atividade o cliente é desconectado. Padrão: 60 min.</p>
+      </div>
+      <div class="fg">
+        <label>Timeout do vendedor (minutos)</label>
+        <input type="number" name="session_timeout_vendedor" value="{{ cfg.get('session_timeout_vendedor', '480') }}" min="30" max="1440" style="max-width:120px">
+        <p class="form-hint">Padrão: 480 min (8 horas — para uso em campo).</p>
+      </div>
+    </div>
+
+    <p class="section-sep">Modo manutenção</p>
+    <div class="toggle-row">
+      <div class="toggle-info">
+        <h4>Ativar modo manutenção</h4>
+        <p>Clientes e vendedores veem a tela de manutenção. Admin continua acessando normalmente.</p>
+      </div>
+      <label class="toggle">
+        <input type="checkbox" name="manutencao" {% if cfg.manutencao %}checked{% endif %}>
+        <span class="toggle-slider"></span>
+      </label>
+    </div>
+
+    <p class="section-sep">Template da mensagem WhatsApp</p>
+    <div class="fg">
+      <label>Texto da notificação para novos clientes</label>
+      <textarea name="msg_whatsapp" rows="12" style="font-family:monospace;font-size:12px">{{ cfg.msg_whatsapp }}</textarea>
+    </div>
+    <div class="tmpl-vars">
+      <strong style="color:var(--cream2)">Variáveis disponíveis:</strong><br>
+      <code>{primeiro}</code> nome do cliente &nbsp;·&nbsp;
+      <code>{titulo}</code> nome do álbum &nbsp;·&nbsp;
+      <code>{site_url}</code> endereço do site<br>
+      <code>{login}</code> login do cliente &nbsp;·&nbsp;
+      <code>{senha}</code> senha &nbsp;·&nbsp;
+      <code>{expira}</code> data de expiração &nbsp;·&nbsp;
+      <code>{dias}</code> dias restantes
+    </div>
+    <button type="button" class="btn btn-ghost btn-sm" style="margin-top:10px"
+      onclick="document.querySelector('textarea[name=msg_whatsapp]').value = `{{ tmpl_padrao|replace('`','\\`')|replace('\n','\\n') }}`">
+      ↩ Restaurar padrão
+    </button>
+
+    <div class="form-actions">
+      <a href="{{ url_for('admin_painel') }}" class="btn btn-ghost btn-sm">Cancelar</a>
+      <button type="submit" class="btn btn-gold btn-sm">Salvar configurações</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Notificações — Admin{% endblock %}
+{% block extra_head %}
+<style>
+.wrap{max-width:860px;margin:0 auto;padding:36px 24px}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
+.page-hd h2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:var(--cream)}
+.section-title{font-size:10px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;
+               color:var(--cream3);margin:24px 0 12px;padding-bottom:8px;
+               border-bottom:.5px solid rgba(255,255,255,.05)}
+.notif-row{display:flex;align-items:center;justify-content:space-between;gap:12px;
+           padding:14px 18px;background:var(--bg2);border:.5px solid var(--line);
+           margin-bottom:8px;border-radius:1px;flex-wrap:wrap}
+.notif-row:hover{border-color:var(--line2)}
+.notif-info h4{font-size:14px;font-weight:500;color:var(--cream);margin-bottom:3px}
+.notif-info .meta{font-size:12px;color:var(--cream3)}
+.empty-notif{padding:24px;text-align:center;font-size:13px;color:var(--cream3);
+             background:var(--bg2);border:.5px solid var(--line)}
+.star{color:var(--gold)}
+.star-empty{color:var(--line2)}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="page-hd">
+    <div><h2>🔔 Central de notificações</h2><p style="font-size:12px;color:var(--cream3);margin-top:3px">Atenção necessária</p></div>
+    <a href="{{ url_for('admin_painel') }}" class="btn btn-ghost btn-sm">← Voltar</a>
+  </div>
+
+  {% if dias_bk >= 7 %}
+  <div style="background:var(--danger-bg);border:.5px solid var(--danger-border);border-left:3px solid var(--red);padding:13px 18px;border-radius:1px;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px">
+    <div>
+      <div style="font-size:13px;font-weight:500;color:var(--red)">💾 Backup atrasado — {{ dias_bk }} dias sem backup</div>
+      <div style="font-size:11px;color:var(--cream3);margin-top:3px">Faça backup agora para proteger seus dados</div>
+    </div>
+    <a href="{{ url_for('admin_backup') }}" class="btn btn-gold btn-sm">Fazer backup</a>
+  </div>
+  {% endif %}
+
+  <p class="section-title">⚠ Expiram hoje ({{ exp_hoje|length }})</p>
+  {% if exp_hoje %}
+    {% for item in exp_hoje %}
+    <div class="notif-row">
+      <div class="notif-info">
+        <h4>{{ item.cliente.nome }}</h4>
+        <div class="meta">{{ item.acesso.album.titulo }} · {{ item.cliente.telefone or 'Sem telefone' }}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <a href="{{ url_for('admin_lembrete', cliente_id=item.cliente.id) }}" class="btn btn-wa btn-sm">⏰ Lembrete</a>
+        <a href="{{ url_for('admin_whatsapp', cliente_id=item.cliente.id) }}" class="btn btn-outline btn-sm">📲 WhatsApp</a>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-notif">Nenhum cliente expirando hoje ✓</div>
+  {% endif %}
+
+  <p class="section-title">👁 Visualizaram mas não baixaram (prazo curto) ({{ viram_nao_baixaram|length }})</p>
+  {% if viram_nao_baixaram %}
+    {% for item in viram_nao_baixaram %}
+    <div class="notif-row">
+      <div class="notif-info">
+        <h4>{{ item.cliente.nome }}</h4>
+        <div class="meta">{{ item.acesso.album.titulo }} · {{ item.acesso.dias_restantes }} dia(s) restante(s)</div>
+      </div>
+      <a href="{{ url_for('admin_lembrete', cliente_id=item.cliente.id) }}" class="btn btn-wa btn-sm">⏰ Enviar lembrete</a>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-notif">Nenhum cliente nessa situação ✓</div>
+  {% endif %}
+
+  <p class="section-title">⭐ Avaliações recentes ({{ avaliacoes|length }})</p>
+  {% if avaliacoes %}
+    {% for av in avaliacoes %}
+    <div class="notif-row">
+      <div class="notif-info">
+        <h4>{{ av.cliente.nome }}
+          <span style="font-size:14px">{% for i in range(av.nota) %}<span class="star">★</span>{% endfor %}{% for i in range(5-av.nota) %}<span class="star-empty">★</span>{% endfor %}</span>
+        </h4>
+        <div class="meta">{{ av.criado_em.strftime('%d/%m/%Y') }}{% if av.comentario %} — {{ av.comentario }}{% endif %}</div>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-notif">Nenhuma avaliação ainda.</div>
+  {% endif %}
+</div>
+{% endblock %}

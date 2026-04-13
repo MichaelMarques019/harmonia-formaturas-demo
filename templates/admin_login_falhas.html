@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Tentativas de Login — Admin{% endblock %}
+{% block extra_head %}
+<style>
+.wrap{max-width:900px;margin:0 auto;padding:36px 24px}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
+.page-hd h2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:var(--cream)}
+.suspeito-box{background:var(--danger-bg);border:.5px solid var(--danger-border);border-left:3px solid var(--red);
+              padding:16px 20px;border-radius:1px;margin-bottom:20px}
+.suspeito-box h3{font-size:14px;font-weight:500;color:var(--red);margin-bottom:10px}
+.ip-row{display:flex;align-items:center;justify-content:space-between;padding:6px 0;
+        border-bottom:.5px solid rgba(217,95,95,.1);font-size:13px}
+.ip-row:last-child{border-bottom:none}
+.falha-row{display:grid;grid-template-columns:120px 80px 1fr 120px;gap:12px;align-items:center;
+           padding:10px 16px;background:var(--bg2);border:.5px solid var(--line);
+           margin-bottom:5px;font-size:12px;transition:border-color .2s}
+.falha-row:hover{border-color:var(--line2)}
+.falha-head{background:transparent!important;border:none!important;
+            font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--cream3)}
+.rota-badge{padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500;letter-spacing:.5px;display:inline-block}
+.rota-admin   {background:var(--danger-bg);color:var(--red);border:.5px solid var(--danger-border)}
+.rota-cliente {background:var(--warn-bg);color:var(--orange);border:.5px solid var(--warn-border)}
+.rota-vendedor{background:var(--blue-bg);color:var(--blue);border:.5px solid var(--blue-border)}
+@media(max-width:640px){.falha-row{grid-template-columns:1fr 80px}.falha-head{display:none}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="page-hd">
+    <div><h2>🔒 Tentativas de login com falha</h2>
+    <p style="font-size:12px;color:var(--cream3);margin-top:3px">Últimas {{ falhas|length }} tentativas registradas</p></div>
+    <a href="{{ url_for('admin_painel') }}" class="btn btn-ghost btn-sm">← Voltar</a>
+  </div>
+
+  {% if ips_suspeitos %}
+  <div class="suspeito-box">
+    <h3>⚠ IPs suspeitos (5+ tentativas)</h3>
+    {% for ip, n in ips_suspeitos.items() %}
+    <div class="ip-row">
+      <code style="color:var(--red)">{{ ip }}</code>
+      <span style="color:var(--cream3)">{{ n }} tentativas</span>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
+  {% if falhas %}
+    <div class="falha-row falha-head">
+      <span>IP</span><span>Tipo</span><span>Login tentado</span><span>Data/hora</span>
+    </div>
+    {% for f in falhas %}
+    <div class="falha-row">
+      <code style="color:var(--cream3);font-size:11px">{{ f.ip }}</code>
+      <span class="rota-badge rota-{{ f.rota }}">{{ f.rota }}</span>
+      <span style="color:var(--cream2)">{{ f.login_tent or '—' }}</span>
+      <span style="color:var(--cream3)">{{ f.criado_em.strftime('%d/%m/%Y %H:%M') }}</span>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align:center;padding:48px;background:var(--bg2);border:.5px solid var(--line);font-size:13px;color:var(--cream3)">
+      Nenhuma tentativa de login com falha registrada. ✓
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

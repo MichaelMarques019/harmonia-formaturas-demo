@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Harmonia Formaturas & Buffet — Álbuns Digitais{% endblock %}
+
+{% block extra_head %}
+<style>
+.hero{min-height:calc(100vh - 58px);display:flex;flex-direction:column;
+      align-items:center;justify-content:center;text-align:center;
+      padding:60px 24px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse 80% 60% at 50% 20%,rgba(201,168,76,.07) 0%,transparent 70%)}
+.hero::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--gold),transparent);opacity:.2}
+.eyebrow{font-size:10px;letter-spacing:5px;color:var(--gold);opacity:.55;
+         text-transform:uppercase;margin-bottom:28px;position:relative}
+.hero h1{font-family:'Cormorant Garamond',serif;font-size:clamp(40px,7vw,72px);
+         font-weight:300;line-height:1.08;color:var(--cream);margin-bottom:10px;position:relative}
+.hero h1 em{font-style:italic;color:var(--gold)}
+.tagline{font-family:'Cormorant Garamond',serif;font-size:clamp(15px,2.2vw,20px);
+         color:var(--cream3);font-style:italic;font-weight:300;margin-bottom:52px;position:relative}
+.hero-div{width:60px;height:.5px;background:var(--gold);margin:0 auto 52px;opacity:.35;position:relative}
+.ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;position:relative}
+.pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;
+         max-width:480px;width:100%;margin:56px auto 0;background:var(--line);position:relative}
+.pillar{background:var(--bg);padding:24px 12px;text-align:center}
+.pv{font-family:'Cormorant Garamond',serif;font-size:38px;color:var(--gold);font-weight:300;line-height:1}
+.pl{font-size:10px;color:var(--cream3);letter-spacing:1.5px;text-transform:uppercase;margin-top:6px}
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="hero">
+  <div class="eyebrow">✦ &nbsp; Harmonia Formaturas & Buffet &nbsp; ✦</div>
+  <h1>Suas <em>memórias</em><br>em alta resolução</h1>
+  <p class="tagline">Álbuns digitais exclusivos da sua formatura</p>
+  <div class="hero-div"></div>
+  <div class="ctas">
+    <a href="{{ url_for('login') }}" class="btn btn-gold">Acessar meus álbuns</a>
+    <a href="{{ url_for('admin_login') }}" class="btn btn-outline">Administração</a>
+  </div>
+  <div class="pillars">
+    <div class="pillar"><div class="pv">7</div><div class="pl">Dias para baixar</div></div>
+    <div class="pillar"><div class="pv">HD</div><div class="pl">Alta resolução</div></div>
+    <div class="pillar"><div class="pv">∞</div><div class="pl">Fotos digitais</div></div>
+  </div>
+</section>
+{% endblock %}

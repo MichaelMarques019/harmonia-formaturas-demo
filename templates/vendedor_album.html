@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}{{ album.titulo }} — Vendedor{% endblock %}
+{% block extra_head %}
+<style>
+.wrap{max-width:860px;margin:0 auto;padding:40px 24px}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--cream3);margin-bottom:24px;flex-wrap:wrap}
+.breadcrumb a{color:var(--blue)} .breadcrumb span{opacity:.4}
+.album-hd{margin-bottom:28px}
+.album-hd h2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--cream);margin-bottom:4px}
+.album-hd .desc{font-size:13px;color:var(--cream3);line-height:1.6;margin-top:6px}
+.modo-banner{background:rgba(91,143,212,.07);border:.5px solid var(--blue-border);
+             padding:10px 16px;font-size:11px;color:var(--blue);
+             display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:28px;flex-wrap:wrap}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+/* Form anotação */
+.form-anot{background:var(--bg2);border:.5px solid var(--line);padding:24px;border-radius:2px}
+.form-anot h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--cream);margin-bottom:20px}
+.status-btns{display:flex;gap:8px;margin-bottom:18px;flex-wrap:wrap}
+.status-radio{display:none}
+.status-lbl{padding:7px 14px;border:.5px solid var(--line);border-radius:20px;font-size:11px;
+            font-weight:500;letter-spacing:.5px;cursor:pointer;transition:all .2s;color:var(--cream3)}
+.status-radio:checked + .status-lbl{border-color:var(--gold);color:var(--gold);background:var(--gold-glow)}
+/* Anotações lista */
+.anot-list h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--cream);margin-bottom:16px}
+.anot-card{background:var(--bg2);border:.5px solid var(--line);padding:16px;margin-bottom:10px;border-radius:2px}
+.anot-card:hover{border-color:var(--line2)}
+.anot-top{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;margin-bottom:8px}
+.anot-nome{font-weight:500;color:var(--cream);font-size:14px}
+.anot-meta{font-size:11px;color:var(--cream3);margin-top:2px}
+.anot-obs{font-size:12px;color:var(--cream2);line-height:1.5;margin-top:8px;
+          padding-top:8px;border-top:.5px solid rgba(255,255,255,.05)}
+.status-pill{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:500;letter-spacing:.5px;text-transform:uppercase}
+.pill-vendido  {background:var(--success-bg);color:var(--green);border:.5px solid var(--success-border)}
+.pill-interesse{background:var(--warn-bg);   color:var(--orange);border:.5px solid var(--warn-border)}
+.pill-nao_quis {background:var(--danger-bg); color:var(--red);   border:.5px solid var(--danger-border)}
+@media(max-width:640px){.grid-2{grid-template-columns:1fr}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="breadcrumb">
+    <a href="{{ url_for('vendedor_painel') }}">Início</a>
+    <span>/</span>
+    <a href="{{ url_for('vendedor_escola', escola_id=album.escola_id) }}">{{ album.escola.nome }}</a>
+    <span>/</span><span>{{ album.titulo }}</span>
+  </div>
+
+  <div class="album-hd">
+    <h2>{{ album.titulo }}</h2>
+    <p style="font-size:12px;color:var(--cream3)">{{ album.escola.nome }}</p>
+    {% if album.descricao %}<p class="desc">{{ album.descricao }}</p>{% endif %}
+  </div>
+
+  <div class="modo-banner">
+    <span>◈ &nbsp;Modo apresentação — abra o álbum para mostrar ao cliente</span>
+    <div style="display:flex;gap:8px;flex-wrap:wrap">
+      {% if album.drive_url %}
+        <a href="{{ album.drive_url }}" target="_blank" class="btn btn-gold btn-sm">↗ Abrir álbum no Drive</a>
+      {% else %}
+        <span class="btn btn-ghost btn-sm" style="opacity:.4;cursor:default">Sem link cadastrado</span>
+      {% endif %}
+      <a href="{{ url_for('vendedor_apresentar', album_id=album.id) }}" class="btn btn-ghost btn-sm" target="_blank">⛶ Apresentação</a>
+      <a href="{{ url_for('vendedor_apresentar', album_id=album.id) }}" class="btn btn-ghost btn-sm" target="_blank">🖼 Galeria</a>
+      <a href="{{ wa_venda }}" target="_blank" class="btn btn-wa btn-sm">📲 Enviar link</a>
+    </div>
+  </div>
+
+  <div class="grid-2">
+    <!-- Formulário de anotação -->
+    <div class="form-anot">
+      <h3>Registrar atendimento</h3>
+      <form method="POST" action="{{ url_for('vendedor_anotar', album_id=album.id) }}">
+        <div class="fg"><label>Nome do cliente atendido *</label><input type="text" name="nome_cliente" placeholder="Nome da pessoa" required></div>
+        <div class="fg"><label>WhatsApp do cliente</label><input type="text" name="telefone" placeholder="19999998888"></div>
+        <div class="fg">
+          <label>Resultado</label>
+          <div class="status-btns">
+            <input type="radio" name="status" id="s1" value="interesse" class="status-radio" checked>
+            <label for="s1" class="status-lbl">Com interesse</label>
+            <input type="radio" name="status" id="s2" value="vendido" class="status-radio">
+            <label for="s2" class="status-lbl">✓ Vendido</label>
+            <input type="radio" name="status" id="s3" value="nao_quis" class="status-radio">
+            <label for="s3" class="status-lbl">Não quis</label>
+          </div>
+        </div>
+        <div class="fg"><label>Observação</label><textarea name="obs" rows="2" placeholder="Anotação sobre a visita..."></textarea></div>
+        <div class="fg"><label>Valor negociado (R$)</label><input type="text" name="valor_venda" placeholder="Ex: 350,00"></div>
+        <div class="fg"><label>Endereço / Bairro</label><input type="text" name="endereco" placeholder="Rua, bairro ou cidade..."></div>
+        <div class="fg"><label>Agendar próxima visita (opcional)</label><input type="datetime-local" name="visita_agendada"></div>
+        <button type="submit" class="btn btn-gold btn-sm" style="width:100%;justify-content:center">Registrar</button>
+      </form>
+    </div>
+
+    <!-- Lista de anotações -->
+    <div class="anot-list">
+      <h3>Atendimentos registrados ({{ anotacoes|length }})</h3>
+      {% if anotacoes %}
+        {% for a in anotacoes %}
+        <div class="anot-card">
+          <div class="anot-top">
+            <div>
+              <div class="anot-nome">{{ a.nome_cliente }}</div>
+              <div class="anot-meta">
+                {% if a.telefone %}📲 {{ a.telefone }} · {% endif %}
+                {{ a.criado_em.strftime('%d/%m/%Y %H:%M') }}
+              </div>
+            </div>
+            <div style="display:flex;align-items:center;gap:6px">
+              <span class="status-pill pill-{{ a.status }}">
+                {% if a.status == 'vendido' %}✓ Vendido{% elif a.status == 'interesse' %}Interesse{% else %}Não quis{% endif %}
+              </span>
+              <form method="POST" action="{{ url_for('vendedor_excluir_anotacao', anot_id=a.id) }}" style="display:inline">
+                <button type="submit" style="background:none;border:none;color:var(--red);cursor:pointer;font-size:13px;opacity:.5;padding:0 3px" title="Remover">✕</button>
+              </form>
+            </div>
+          </div>
+          {% if a.obs %}<div class="anot-obs">{{ a.obs }}</div>{% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <p style="font-size:13px;color:var(--cream3);padding:20px 0">Nenhum atendimento registrado ainda.</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}

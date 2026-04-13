@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}Editar Escola — Harmonia{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  <h2>Editar escola</h2>
+  <p class="sub">{{ escola.nome }}</p>
+  <form method="POST">
+    <div class="fg"><label>Nome</label><input type="text" name="nome" value="{{ escola.nome }}" required></div>
+    <div class="form-actions">
+      <a href="{{ url_for('admin_painel') }}" class="btn btn-ghost btn-sm">Cancelar</a>
+      <button type="submit" class="btn btn-gold btn-sm">Salvar</button>
+    </div>
+  </form>
+</div>
+{% endblock %}

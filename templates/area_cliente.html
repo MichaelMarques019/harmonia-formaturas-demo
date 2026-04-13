@@ -1,0 +1,268 @@
+{% extends "base.html" %}
+{% block title %}{{ t('my_albums') }} — Harmonia{% endblock %}
+{% block extra_head %}
+<style>
+.carea{max-width:720px;margin:0 auto;padding:44px 22px}
+.chead{text-align:center;margin-bottom:40px}
+.chead .seal{width:44px;height:44px;border:.5px solid var(--line2);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;color:var(--gold);font-size:17px}
+.chead h2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--cream);margin-bottom:5px}
+.chead p{font-size:13px;color:var(--cream3)}
+.acard{margin-bottom:16px}
+.acard-top{display:flex;align-items:flex-start;justify-content:space-between;gap:14px;margin-bottom:18px;flex-wrap:wrap}
+.acard-info h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--cream);margin-bottom:4px}
+.acard-info p{font-size:12px;color:var(--cream3)}
+.abtns{display:flex;gap:8px;flex-wrap:wrap}
+.btn-exp-dis{padding:10px 20px;background:var(--danger-bg);color:var(--red);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;border:.5px solid var(--danger-border);cursor:not-allowed;font-family:'Jost',sans-serif;border-radius:1px;display:inline-flex;align-items:center;gap:7px}
+/* Countdown */
+.countdown{display:flex;gap:7px;align-items:center;margin-bottom:16px;flex-wrap:wrap}
+.cd-block{background:var(--bg3);border:.5px solid var(--line);border-radius:2px;padding:7px 12px;text-align:center;min-width:52px}
+.cd-num{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:300;color:var(--gold);line-height:1}
+.cd-lbl{font-size:9px;color:var(--cream3);letter-spacing:1px;text-transform:uppercase;margin-top:2px}
+.cd-sep{font-size:16px;color:var(--cream3);opacity:.4}
+/* Download confirm */
+.dl-confirm{background:rgba(76,175,125,.06);border:.5px solid var(--success-border);border-radius:2px;padding:13px 16px;font-size:12px;color:var(--green);line-height:1.7;margin-top:10px;display:none}
+.dl-confirm.show{display:block}
+/* Post-download */
+.dl-success{background:rgba(76,175,125,.08);border:.5px solid var(--success-border);border-radius:2px;padding:14px 16px;margin-top:10px;display:none}
+.dl-success.show{display:flex;align-items:flex-start;gap:12px}
+.dl-success-txt h4{font-size:13px;color:var(--green);margin-bottom:4px}
+.dl-success-txt p{font-size:12px;color:var(--cream3);line-height:1.6}
+.dl-success-txt .checklist{list-style:none;margin-top:6px}
+.dl-success-txt .checklist li{font-size:12px;color:var(--cream3);padding:2px 0}
+.dl-success-txt .checklist li::before{content:'✓ ';color:var(--green)}
+/* Rating */
+.rating-box{background:var(--bg2);border:.5px solid var(--line2);border-radius:2px;padding:22px 24px;margin-top:20px}
+.rating-box h3{font-family:'Cormorant Garamond',serif;font-size:20px;font-weight:400;color:var(--cream);margin-bottom:5px}
+.rating-box p{font-size:12px;color:var(--cream3);margin-bottom:16px}
+.stars{display:flex;gap:6px;margin-bottom:14px}
+.star{font-size:28px;cursor:pointer;opacity:.3;transition:all .15s;line-height:1}
+.star:hover,.star.on{opacity:1;transform:scale(1.15)}
+.rating-done{text-align:center;padding:20px;color:var(--green);font-size:13px}
+/* Push */
+.push-bar{background:rgba(91,143,212,.07);border:.5px solid var(--blue-border);padding:10px 16px;
+          font-size:12px;color:var(--blue);display:flex;align-items:center;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+/* history link */
+.hist-link{font-size:11px;color:var(--cream3);margin-top:8px;display:block}
+.hist-link a{color:var(--blue)}
+</style>
+{% endblock %}
+{% block content %}
+<div class="carea">
+  <div class="chead">
+    <div class="seal">◆</div>
+    <h2>{{ t('hello') }}, {{ cliente.nome.split()[0] }}!</h2>
+    <p>{{ cliente.evento or 'Harmonia Formaturas & Buffet' }}</p>
+  </div>
+
+  {% if cliente.acessos %}
+    <!-- Web Push opt-in -->
+    <div class="push-bar" id="push-bar" style="display:none">
+      🔔 <span>Receber notificações quando faltar pouco tempo para expirar?</span>
+      <button class="btn btn-blue btn-sm" onclick="ativarPush()">Ativar notificações</button>
+      <button onclick="document.getElementById('push-bar').style.display='none'" style="background:none;border:none;color:var(--cream3);cursor:pointer;font-size:18px">×</button>
+    </div>
+
+    <div class="notice">
+      ⚠ &nbsp;{{ t('notice_expire') }} <strong>{{ config.get('DIAS_EXPIRACAO',7) }} {{ t('notice_days') }}</strong>
+      {{ t('notice_warn') }}
+    </div>
+
+    {% for acesso in cliente.acessos %}
+      {% set pct = acesso.pct_prazo %}
+      {% set bar = 'fill-ok' if pct > 50 else ('fill-warn' if pct > 20 else 'fill-low') %}
+      <div class="card acard">
+        <div class="acard-top">
+          <div class="acard-info">
+            <h3>{{ acesso.album.titulo }}</h3>
+            <p>{{ acesso.album.escola.nome }} · {{ acesso.album.criado_em.strftime('%d/%m/%Y') }}{% if acesso.album.tamanho_fmt %} · <strong style="color:var(--cream2)">{{ acesso.album.tamanho_fmt }}</strong>{% endif %}</p>
+          </div>
+          {% if acesso.baixado %}<span class="badge badge-ok">⬇ {{ t('downloaded') }}</span>
+          {% elif acesso.expirado %}<span class="badge badge-exp">✕ Expirado</span>
+          {% elif acesso.visualizado %}<span class="badge badge-warn">👁 {{ t('viewed') }}</span>
+          {% else %}<span class="badge badge-warn">Novo</span>{% endif %}
+        </div>
+
+        <!-- Countdown -->
+        {% if not acesso.expirado %}
+        <div class="countdown" id="cd-{{ acesso.id }}">
+          <div class="cd-block"><div class="cd-num" id="cd-d-{{ acesso.id }}">--</div><div class="cd-lbl">{% if session.get('lang')=='en' %}Days{% elif session.get('lang')=='es' %}Días{% else %}Dias{% endif %}</div></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-block"><div class="cd-num" id="cd-h-{{ acesso.id }}">--</div><div class="cd-lbl">{% if session.get('lang')=='en' %}Hours{% elif session.get('lang')=='es' %}Horas{% else %}Horas{% endif %}</div></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-block"><div class="cd-num" id="cd-m-{{ acesso.id }}">--</div><div class="cd-lbl">Min</div></div>
+          <div class="cd-sep">:</div>
+          <div class="cd-block"><div class="cd-num" id="cd-s-{{ acesso.id }}">--</div><div class="cd-lbl">Seg</div></div>
+        </div>
+        <script>
+        (function(){
+          var fim=new Date("{{ acesso.expira_em.strftime('%Y-%m-%dT%H:%M:%S') }}Z");
+          function tick(){
+            var diff=Math.max(0,Math.floor((fim-new Date())/1000));
+            if(diff===0){document.getElementById('cd-{{ acesso.id }}').innerHTML='<span style="color:var(--red);font-size:13px">Prazo encerrado</span>';return;}
+            var d=Math.floor(diff/86400),h=Math.floor((diff%86400)/3600),m=Math.floor((diff%3600)/60),s=diff%60;
+            function p(n){return String(n).padStart(2,'0');}
+            document.getElementById('cd-d-{{ acesso.id }}').textContent=d;
+            document.getElementById('cd-h-{{ acesso.id }}').textContent=p(h);
+            document.getElementById('cd-m-{{ acesso.id }}').textContent=p(m);
+            document.getElementById('cd-s-{{ acesso.id }}').textContent=p(s);
+            setTimeout(tick,1000);
+          }
+          tick();
+        })();
+        </script>
+        {% else %}
+        <div style="font-size:13px;color:var(--red);margin-bottom:14px">✕ Prazo encerrado</div>
+        {% endif %}
+
+        <!-- Progress bar -->
+        <div class="prog-wrap">
+          <div class="prog-meta"><span>Expira em</span><strong>{{ acesso.expira_em.strftime('%d/%m/%Y às %H:%M') if acesso.expira_em else '—' }}</strong></div>
+          <div class="prog-track"><div class="prog-fill {{ bar }}" style="width:{{ pct }}%"></div></div>
+        </div>
+
+        <!-- Action buttons -->
+        <div class="abtns">
+          {% if acesso.expirado %}
+            <span class="btn-exp-dis">✕ {{ t('btn_expired') }}</span>
+          {% elif acesso.album.nome_arquivo or acesso.album.drive_url %}
+            {% if acesso.album.drive_url %}
+              <a href="{{ url_for('visualizar_album', acesso_id=acesso.id) }}" target="_blank" class="btn btn-outline btn-sm">↗ {{ t('btn_view') }}</a>
+            {% endif %}
+            {% if acesso.baixado %}
+              <a href="{{ url_for('download_album', acesso_id=acesso.id) }}" class="btn btn-ghost btn-sm">⬇ {{ t('btn_redownload') }}</a>
+            {% else %}
+              <button class="btn btn-gold btn-sm" onclick="mostrarConfirm({{ acesso.id }})">
+                ⬇ {% if acesso.album.nome_arquivo %}{{ t('btn_download') }}{% else %}{{ t('btn_download') }}{% endif %}
+              </button>
+            {% endif %}
+          {% else %}
+            <span class="btn-exp-dis" style="cursor:default;opacity:.5">{{ t('btn_waiting') }}</span>
+          {% endif %}
+        </div>
+
+        <!-- Download confirm box -->
+        {% if not acesso.expirado and (acesso.album.nome_arquivo or acesso.album.drive_url) and not acesso.baixado %}
+        <div class="dl-confirm" id="dlconf-{{ acesso.id }}">
+          <strong>{{ t('confirm_title') }}</strong> {{ t('confirm_text') }}
+          O link expira em <strong>{{ acesso.expira_em.strftime('%d/%m/%Y') }}</strong>.
+          <div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">
+            <a href="{{ url_for('download_album', acesso_id=acesso.id) }}" {% if not acesso.album.nome_arquivo %}target="_blank"{% endif %}
+               class="btn btn-gold btn-sm" onclick="confirmarSalvou({{ acesso.id }})">
+              ✓ {{ t('confirm_btn') }}
+            </a>
+            <button class="btn btn-ghost btn-sm" onclick="fecharConfirm({{ acesso.id }})">{{ t('confirm_cancel') }}</button>
+          </div>
+        </div>
+        {% endif %}
+
+        <!-- Post-download success -->
+        <div class="dl-success" id="dlsuc-{{ acesso.id }}">
+          <div style="font-size:22px">✅</div>
+          <div class="dl-success-txt">
+            <h4>{{ t('success_title') }}</h4>
+            <p>{{ t('success_sub') }}</p>
+            <ul class="checklist">
+              <li>{{ t('check1') }}</li>
+              <li>{{ t('check2') }}</li>
+              <li>{{ t('check3') }}</li>
+            </ul>
+          </div>
+        </div>
+
+        {% if acesso.baixado and acesso.dt_download %}
+        <div style="font-size:11px;color:var(--green);margin-top:8px;opacity:.8">
+          ✓ Download em {{ acesso.dt_download.strftime('%d/%m/%Y às %H:%M') }}
+        </div>
+        {% endif %}
+
+        <div class="hist-link">
+          <a href="{{ url_for('historico_acessos') }}">📋 {{ t('history_title') }}</a>
+        </div>
+      </div>
+    {% endfor %}
+
+    <!-- Rating -->
+    {% if algum_baixado and not ja_avaliou %}
+    <div class="rating-box" id="rating-box">
+      <h3>{{ t('rate_title') }}</h3>
+      <p>{{ t('rate_sub') }}</p>
+      <div class="stars" id="stars">
+        {% for i in range(1,6) %}
+        <span class="star" data-n="{{ i }}" onclick="selecionarEstrela({{ i }})">★</span>
+        {% endfor %}
+      </div>
+      <div class="fg"><textarea id="rate-comt" rows="2" placeholder="{{ t('rate_comment') }}"></textarea></div>
+      <button class="btn btn-gold btn-sm" onclick="enviarAvaliacao()">{{ t('rate_btn') }}</button>
+    </div>
+    {% elif ja_avaliou %}
+    <div style="text-align:center;padding:16px;font-size:13px;color:var(--green)">⭐ {{ t('rate_thanks') }}</div>
+    {% endif %}
+
+  {% else %}
+    <div style="text-align:center;padding:56px 24px">
+      <p style="font-family:'Cormorant Garamond',serif;font-size:22px;color:var(--cream3);margin-bottom:8px">Nenhum álbum disponível ainda</p>
+      <p style="font-size:13px;color:var(--cream3)">Assim que seus arquivos forem liberados, eles aparecerão aqui.</p>
+    </div>
+  {% endif %}
+
+  <div style="text-align:center;margin-top:32px">
+    <a href="{{ url_for('logout') }}" class="btn btn-ghost btn-sm">← {{ t('btn_logout') }}</a>
+  </div>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function mostrarConfirm(id){ document.getElementById('dlconf-'+id).classList.add('show'); }
+function fecharConfirm(id) { document.getElementById('dlconf-'+id).classList.remove('show'); }
+function confirmarSalvou(id){
+  setTimeout(function(){
+    var s=document.getElementById('dlsuc-'+id); if(s) s.classList.add('show');
+    var c=document.getElementById('dlconf-'+id); if(c) c.classList.remove('show');
+  }, 800);
+}
+
+// Stars
+var notaSel = 0;
+function selecionarEstrela(n){
+  notaSel=n;
+  document.querySelectorAll('.star').forEach(function(s,i){
+    s.classList.toggle('on', i<n);
+  });
+}
+function enviarAvaliacao(){
+  if(!notaSel){ alert('Selecione uma nota!'); return; }
+  var fd=new FormData();
+  fd.append('nota',notaSel);
+  fd.append('comentario',document.getElementById('rate-comt').value);
+  fetch('{{ url_for("avaliar") }}',{method:'POST',body:fd})
+    .then(r=>r.json()).then(d=>{
+      if(d.ok){ document.getElementById('rating-box').innerHTML='<div class="rating-done">⭐ {{ t("rate_thanks") }}</div>'; }
+    });
+}
+
+// Web Push
+{% if config.get('VAPID_PUBLIC_KEY') %}
+if('Notification' in window && Notification.permission==='default'){
+  document.getElementById('push-bar').style.display='flex';
+}
+function ativarPush(){
+  Notification.requestPermission().then(function(p){
+    if(p==='granted'){
+      navigator.serviceWorker.ready.then(function(sw){
+        sw.pushManager.subscribe({
+          userVisibleOnly:true,
+          applicationServerKey:'{{ config.get("VAPID_PUBLIC_KEY","") }}'
+        }).then(function(sub){
+          fetch('{{ url_for("push_subscribe") }}',{
+            method:'POST',headers:{'Content-Type':'application/json'},
+            body:JSON.stringify(sub)
+          });
+          document.getElementById('push-bar').style.display='none';
+        });
+      });
+    }
+  });
+}
+{% endif %}
+</script>
+{% endblock %}

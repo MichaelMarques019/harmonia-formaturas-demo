@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}Erro {{ codigo }} — Harmonia{% endblock %}
+{% block content %}
+<div style="min-height:calc(100vh - 58px);display:flex;align-items:center;justify-content:center;text-align:center;padding:40px 24px">
+  <div style="max-width:420px">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:72px;font-weight:300;color:var(--gold);opacity:.25;line-height:1;margin-bottom:20px">{{ codigo }}</div>
+    <h2 style="font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--cream);margin-bottom:10px">{{ titulo }}</h2>
+    <p style="font-size:13px;color:var(--cream3);line-height:1.7;margin-bottom:32px">{{ msg }}</p>
+    <a href="{{ url_for('index') }}" class="btn btn-gold btn-sm">← Voltar ao início</a>
+  </div>
+</div>
+{% endblock %}

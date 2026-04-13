@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block title %}Agenda — Vendedor{% endblock %}
+{% block extra_head %}
+<style>
+.wrap{max-width:820px;margin:0 auto;padding:40px 24px}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
+.page-hd h2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:var(--cream)}
+.sec-title{font-size:10px;font-weight:500;letter-spacing:2.5px;text-transform:uppercase;color:var(--cream3);margin:24px 0 12px;padding-bottom:8px;border-bottom:.5px solid rgba(255,255,255,.05)}
+.visit-card{background:var(--bg2);border:.5px solid var(--line);padding:18px 20px;margin-bottom:10px;border-radius:1px;display:flex;align-items:flex-start;gap:16px;transition:border-color .2s}
+.visit-card:hover{border-color:var(--line2)}
+.visit-card.proxima{border-left:2px solid var(--gold)}
+.visit-date{min-width:52px;text-align:center;flex-shrink:0}
+.visit-date .day{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:300;color:var(--gold);line-height:1}
+.visit-date .month{font-size:10px;color:var(--cream3);letter-spacing:1px;text-transform:uppercase}
+.visit-date .hour{font-size:11px;color:var(--cream2);margin-top:3px}
+.visit-info{flex:1}
+.visit-info h4{font-size:14px;font-weight:500;color:var(--cream);margin-bottom:4px}
+.visit-info .meta{font-size:12px;color:var(--cream3);line-height:1.5}
+.visit-status{flex-shrink:0}
+.status-pill{padding:3px 10px;border-radius:20px;font-size:10px;font-weight:500;letter-spacing:.5px;text-transform:uppercase}
+.pill-vendido  {background:var(--success-bg);color:var(--green);border:.5px solid var(--success-border)}
+.pill-interesse{background:var(--warn-bg);   color:var(--orange);border:.5px solid var(--warn-border)}
+.pill-nao_quis {background:var(--danger-bg); color:var(--red);   border:.5px solid var(--danger-border)}
+.empty-msg{text-align:center;padding:32px;background:var(--bg2);border:.5px solid var(--line);font-size:13px;color:var(--cream3)}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="page-hd">
+    <div>
+      <h2>📅 Agenda de visitas</h2>
+      <p style="font-size:13px;color:var(--cream3)">{{ vendedor.nome }}</p>
+    </div>
+    <a href="{{ url_for('vendedor_painel') }}" class="btn btn-ghost btn-sm">← Voltar</a>
+  </div>
+
+  <p class="sec-title">Próximas visitas ({{ proximas|length }})</p>
+  {% if proximas %}
+    {% for a in proximas %}
+    <div class="visit-card proxima">
+      <div class="visit-date">
+        <div class="day">{{ a.visita_agendada.strftime('%d') }}</div>
+        <div class="month">{{ a.visita_agendada.strftime('%b') }}</div>
+        <div class="hour">{{ a.visita_agendada.strftime('%H:%M') }}</div>
+      </div>
+      <div class="visit-info">
+        <h4>{{ a.nome_cliente }}</h4>
+        <div class="meta">
+          📸 {{ a.album.titulo }} — {{ a.album.escola.nome }}<br>
+          {% if a.telefone %}📲 {{ a.telefone }}<br>{% endif %}
+          {% if a.endereco %}📍 {{ a.endereco }}<br>{% endif %}
+          {% if a.obs %}💬 {{ a.obs }}{% endif %}
+        </div>
+      </div>
+      <div class="visit-status">
+        <span class="status-pill pill-{{ a.status }}">
+          {% if a.status=='vendido' %}✓ Vendido{% elif a.status=='interesse' %}Interesse{% else %}Não quis{% endif %}
+        </span>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-msg">Nenhuma visita agendada. Registre anotações com data e hora para aparecerem aqui.</div>
+  {% endif %}
+
+  <p class="sec-title">Visitas passadas ({{ passadas|length }})</p>
+  {% if passadas %}
+    {% for a in passadas %}
+    <div class="visit-card" style="opacity:.7">
+      <div class="visit-date">
+        <div class="day">{{ a.visita_agendada.strftime('%d') }}</div>
+        <div class="month">{{ a.visita_agendada.strftime('%b') }}</div>
+        <div class="hour">{{ a.visita_agendada.strftime('%H:%M') }}</div>
+      </div>
+      <div class="visit-info">
+        <h4>{{ a.nome_cliente }}</h4>
+        <div class="meta">{{ a.album.titulo }} — {{ a.album.escola.nome }}{% if a.endereco %} · {{ a.endereco }}{% endif %}</div>
+      </div>
+      <div class="visit-status"><span class="status-pill pill-{{ a.status }}">{% if a.status=='vendido' %}✓ Vendido{% elif a.status=='interesse' %}Interesse{% else %}Não quis{% endif %}</span></div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div class="empty-msg">Nenhuma visita passada registrada.</div>
+  {% endif %}
+</div>
+{% endblock %}

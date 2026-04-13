@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Avaliações — Admin{% endblock %}
+{% block extra_head %}
+<style>
+.wrap{max-width:860px;margin:0 auto;padding:36px 24px}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:28px;gap:16px;flex-wrap:wrap}
+.page-hd h2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:var(--cream)}
+.media-box{background:var(--bg2);border:.5px solid var(--line);padding:20px 24px;margin-bottom:24px;display:flex;align-items:center;gap:20px}
+.media-num{font-family:'Cormorant Garamond',serif;font-size:52px;font-weight:300;color:var(--gold);line-height:1}
+.media-stars{font-size:22px;margin-bottom:4px}
+.media-lbl{font-size:11px;color:var(--cream3);letter-spacing:1px;text-transform:uppercase}
+.av-row{padding:16px 18px;background:var(--bg2);border:.5px solid var(--line);margin-bottom:8px;border-radius:1px}
+.av-row:hover{border-color:var(--line2)}
+.av-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:6px;flex-wrap:wrap}
+.av-nome{font-weight:500;color:var(--cream);font-size:14px}
+.av-meta{font-size:11px;color:var(--cream3);margin-top:2px}
+.av-stars{font-size:18px;color:var(--gold)}
+.av-coment{font-size:13px;color:var(--cream2);margin-top:8px;font-style:italic;line-height:1.6}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="page-hd">
+    <div><h2>⭐ Avaliações dos clientes</h2>
+    <p style="font-size:12px;color:var(--cream3);margin-top:3px">{{ avaliacoes|length }} avaliação(ões) recebida(s)</p></div>
+    <a href="{{ url_for('admin_painel') }}" class="btn btn-ghost btn-sm">← Voltar</a>
+  </div>
+
+  {% if avaliacoes %}
+  <div class="media-box">
+    <div class="media-num">{{ media }}</div>
+    <div>
+      <div class="media-stars">
+        {% for i in range(media|round|int) %}★{% endfor %}{% for i in range(5 - media|round|int) %}☆{% endfor %}
+      </div>
+      <div class="media-lbl">Média geral ({{ avaliacoes|length }} avaliações)</div>
+    </div>
+  </div>
+
+    {% for av in avaliacoes %}
+    <div class="av-row">
+      <div class="av-top">
+        <div>
+          <div class="av-nome">{{ av.cliente.nome }}</div>
+          <div class="av-meta">{{ av.acesso.album.titulo }} · {{ av.criado_em.strftime('%d/%m/%Y') }}</div>
+        </div>
+        <div class="av-stars">{% for i in range(av.nota) %}★{% endfor %}{% for i in range(5-av.nota) %}<span style="color:var(--line2)">★</span>{% endfor %}</div>
+      </div>
+      {% if av.comentario %}<div class="av-coment">"{{ av.comentario }}"</div>{% endif %}
+    </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align:center;padding:60px;background:var(--bg2);border:.5px solid var(--line);font-size:13px;color:var(--cream3)">
+      Nenhuma avaliação recebida ainda.
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

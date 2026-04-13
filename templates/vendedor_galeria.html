@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{{ album.titulo }} — Galeria</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=Jost:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Jost',sans-serif;background:#0D0A06;color:#F5F0E8;min-height:100vh;display:flex;flex-direction:column}
+.top{display:flex;align-items:center;justify-content:space-between;padding:14px 24px;
+     background:rgba(13,10,6,.95);border-bottom:.5px solid rgba(201,168,76,.15)}
+.brand{font-family:'Cormorant Garamond',serif;font-size:14px;letter-spacing:2px;color:#C9A84C;text-transform:uppercase}
+.album-title{font-family:'Cormorant Garamond',serif;font-size:15px;color:#F5F0E8;font-style:italic}
+.btn-exit{padding:7px 14px;background:transparent;border:.5px solid rgba(201,168,76,.2);
+          color:#8C7E6A;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;
+          cursor:pointer;font-family:'Jost',sans-serif;border-radius:1px;text-decoration:none;transition:all .2s}
+.btn-exit:hover{color:#F5F0E8;border-color:rgba(201,168,76,.4)}
+.main{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 24px;text-align:center}
+.escola{font-size:11px;letter-spacing:3px;color:#C9A84C;opacity:.5;text-transform:uppercase;margin-bottom:16px}
+h1{font-family:'Cormorant Garamond',serif;font-size:clamp(28px,5vw,52px);font-weight:300;color:#F5F0E8;margin-bottom:8px}
+h1 em{font-style:italic;color:#C9A84C}
+.desc{font-size:14px;color:#8C7E6A;max-width:480px;line-height:1.7;margin-bottom:36px}
+.iframe-wrap{width:100%;max-width:900px;background:rgba(255,255,255,.03);border:.5px solid rgba(201,168,76,.15);border-radius:2px;overflow:hidden;margin-bottom:24px}
+.iframe-wrap iframe{width:100%;height:520px;border:none;display:block}
+.no-link{color:#8C7E6A;font-size:14px;margin-bottom:24px}
+.no-link a{color:#C9A84C}
+.actions{display:flex;gap:10px;justify-content:center;flex-wrap:wrap}
+.btn-open{display:inline-flex;align-items:center;gap:8px;padding:13px 28px;background:#C9A84C;color:#0D0A06;font-size:11px;font-weight:500;letter-spacing:2px;text-transform:uppercase;border:none;border-radius:1px;cursor:pointer;text-decoration:none;font-family:'Jost',sans-serif;transition:all .2s}
+.btn-open:hover{background:#E8D5A0}
+.btn-wa{display:inline-flex;align-items:center;gap:8px;padding:12px 24px;background:rgba(37,211,102,.08);color:#81E09C;border:.5px solid rgba(37,211,102,.22);font-size:11px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;border-radius:1px;text-decoration:none;font-family:'Jost',sans-serif;transition:all .2s}
+.btn-wa:hover{background:rgba(37,211,102,.16)}
+</style>
+</head>
+<body>
+<div class="top">
+  <div class="brand">Harmonia <em style="font-style:italic;font-weight:300">Formaturas</em></div>
+  <div class="album-title">{{ album.titulo }}</div>
+  <a href="{{ url_for('vendedor_album', album_id=album.id) }}" class="btn-exit">← Sair</a>
+</div>
+<div class="main">
+  <div class="escola">✦ {{ album.escola.nome }} ✦</div>
+  <h1>{{ album.titulo }}</h1>
+  {% if album.descricao %}<p class="desc">{{ album.descricao }}</p>{% endif %}
+
+  {% if album.drive_url %}
+    {# Embed Google Drive folder as iframe if it's a folder link #}
+    {% if 'folders' in album.drive_url %}
+      {% set embed_url = album.drive_url.replace('/drive/folders/', '/embeddedfolderview?id=').replace('https://drive.google.com/embeddedfolderview', 'https://drive.google.com/embeddedfolderview') %}
+      <div class="iframe-wrap">
+        <iframe src="{{ album.drive_url.replace('drive/folders/', 'drive/folders/') }}?usp=sharing&embedded=true"
+                allowfullscreen loading="lazy"></iframe>
+      </div>
+    {% endif %}
+    <div class="actions">
+      <a href="{{ album.drive_url }}" target="_blank" class="btn-open">↗ Abrir em tela cheia</a>
+    </div>
+  {% else %}
+    <p class="no-link">Link do Drive não configurado para este álbum. <a href="{{ url_for('vendedor_album', album_id=album.id) }}">Voltar →</a></p>
+  {% endif %}
+</div>
+</body>
+</html>

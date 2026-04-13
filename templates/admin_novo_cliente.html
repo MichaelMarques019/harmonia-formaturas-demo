@@ -1,0 +1,61 @@
+{% extends "base.html" %}
+{% block title %}Novo Cliente — Harmonia{% endblock %}
+{% block extra_head %}
+<style>
+.pass-wrap{position:relative}
+.pass-btn{position:absolute;right:12px;top:50%;transform:translateY(-50%);
+          background:none;border:none;color:var(--cream3);cursor:pointer;font-size:15px}
+</style>
+{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  <h2>Novo cliente</h2>
+  <p class="sub">Cadastre o formando e libere o acesso ao álbum via link do Drive.</p>
+  <form method="POST">
+    <p class="section-sep">Dados pessoais</p>
+    <div class="frow">
+      <div class="fg"><label>Nome completo *</label><input type="text" name="nome" placeholder="Ana Carolina Silva" required></div>
+      <div class="fg"><label>Evento / Turma</label><input type="text" name="evento" placeholder="Medicina 2024 · UNICAMP"></div>
+    </div>
+    <div class="fg"><label>Tags (separadas por vírgula)</label><input type="text" name="tags" placeholder="VIP, Indicação, Pendente pagamento..."><p class="form-hint">Etiquetas para organizar o cliente no painel.</p></div>
+    <div class="fg"><label>E-mail do cliente</label><input type="email" name="email" placeholder="ana@email.com"><p class="form-hint">Usado para enviar e-mail de boas-vindas e lembretes automáticos.</p></div>
+    <div class="fg"><label>WhatsApp (com DDD, só números)</label><input type="text" name="telefone" placeholder="19999998888" maxlength="20"><p class="form-hint">Usado para enviar a notificação automática.</p></div>
+
+    <p class="section-sep">Acesso ao sistema</p>
+    <div class="frow">
+      <div class="fg"><label>Login *</label><input type="text" name="login" placeholder="anacarolina" required pattern="[a-zA-Z0-9._\-]+"></div>
+      <div class="fg"><label>Senha *</label>
+        <div class="pass-wrap">
+          <input type="text" name="senha" placeholder="harmonia2024" required id="senha-inp">
+          <button type="button" class="pass-btn" onclick="gerarSenha()" title="Gerar senha">🎲</button>
+        </div>
+        <p class="form-hint">🎲 gera automaticamente.</p>
+      </div>
+    </div>
+
+    <p class="section-sep">Álbum vinculado</p>
+    <div class="fg">
+      <label>Álbum *</label>
+      <select name="album_id">
+        <option value="">— Vincular depois —</option>
+        {% for a in albums %}<option value="{{ a.id }}">{{ a.escola.nome }} — {{ a.titulo }}</option>{% endfor %}
+      </select>
+      <p class="form-hint">Selecione o álbum que este cliente terá acesso por {{ config['DIAS_EXPIRACAO'] }} dias.</p>
+    </div>
+
+    <div class="form-actions">
+      <a href="{{ url_for('admin_painel') }}" class="btn btn-ghost btn-sm">Cancelar</a>
+      <button type="submit" class="btn btn-gold btn-sm">Criar e enviar notificação →</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function gerarSenha() {
+  const c = 'abcdefghjkmnpqrstuvwxyz23456789';
+  let s = ''; for (let i = 0; i < 8; i++) s += c[Math.floor(Math.random()*c.length)];
+  document.getElementById('senha-inp').value = s;
+}
+</script>
+{% endblock %}

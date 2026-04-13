@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Login — Harmonia Formaturas{% endblock %}
+
+{% block extra_head %}
+<style>
+.login-scene{min-height:calc(100vh - 58px);display:flex;align-items:center;
+             justify-content:center;padding:24px}
+.lcard{background:var(--bg2);border:.5px solid var(--line2);padding:52px 44px;
+       width:100%;max-width:400px}
+.lcard-head{text-align:center;margin-bottom:40px}
+.seal{width:46px;height:46px;border:.5px solid var(--line2);border-radius:50%;
+      display:flex;align-items:center;justify-content:center;margin:0 auto 16px;
+      color:var(--gold);font-size:18px}
+.lcard-head h2{font-family:'Cormorant Garamond',serif;font-size:22px;font-weight:400;
+               color:var(--gold);letter-spacing:1px;margin-bottom:4px}
+.lcard-head p{font-size:12px;color:var(--cream3)}
+.lswitch{text-align:center;margin-top:18px;font-size:12px;color:var(--cream3)}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="login-scene">
+  <div class="lcard">
+    <div class="lcard-head">
+      <div class="seal">◆</div>
+      <h2>Área do Formando</h2>
+      <p>Acesse seus álbuns digitais</p>
+    </div>
+    <form method="POST">
+      <div class="fg">
+        <label>Usuário</label>
+        <input type="text" name="login" placeholder="Seu login" required autofocus>
+      </div>
+      <div class="fg">
+        <label>Senha</label>
+        <input type="password" name="senha" placeholder="••••••••" required>
+      </div>
+      <button type="submit" class="btn btn-gold" style="width:100%;justify-content:center;margin-top:4px">
+        Entrar
+      </button>
+    </form>
+    <div class="lswitch">
+      <a href="{{ url_for('admin_login') }}">Sou administrador →</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

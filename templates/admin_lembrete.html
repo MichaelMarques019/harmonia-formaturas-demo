@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Lembrete de Prazo — Harmonia{% endblock %}
+{% block extra_head %}
+<style>
+.wrap{max-width:560px;margin:0 auto;padding:48px 24px}
+.wrap h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:var(--cream);margin-bottom:6px}
+.wrap .sub{font-size:13px;color:var(--cream3);margin-bottom:32px}
+.info-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:.5px solid rgba(255,255,255,.05);font-size:13px}
+.info-row:last-child{border-bottom:none}
+.info-row .lbl{color:var(--cream3);font-size:11px}
+.wa-actions{display:flex;gap:12px;justify-content:center;margin-top:28px;flex-wrap:wrap}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <h2>⏰ Lembrete de prazo</h2>
+  <p class="sub">{{ cliente.nome }} — {{ acesso.dias_restantes }} dia(s) restante(s)</p>
+
+  <div class="card" style="margin-bottom:24px">
+    <p class="section-lbl">Informações</p>
+    <div class="info-row"><span class="lbl">Cliente</span><span>{{ cliente.nome }}</span></div>
+    <div class="info-row"><span class="lbl">WhatsApp</span><span>{{ cliente.telefone or '—' }}</span></div>
+    <div class="info-row"><span class="lbl">Álbum</span><span>{{ acesso.album.titulo if acesso else '—' }}</span></div>
+    <div class="info-row"><span class="lbl">Expira em</span><span style="color:var(--orange)">{{ acesso.expira_em.strftime('%d/%m/%Y') if acesso and acesso.expira_em else '—' }}</span></div>
+    <div class="info-row"><span class="lbl">Dias restantes</span><span style="color:var(--orange)">{{ acesso.dias_restantes if acesso else '—' }}</span></div>
+    <div class="info-row"><span class="lbl">Status</span><span>{% if acesso and acesso.baixado %}✓ Já baixou{% elif acesso and acesso.visualizado %}👁 Visualizou{% else %}Não acessou{% endif %}</span></div>
+  </div>
+
+  <div class="card">
+    <p class="section-lbl">Mensagem de lembrete</p>
+    <div class="msg-box">{{ msg_text }}</div>
+  </div>
+
+  <div class="wa-actions">
+    <a href="{{ url_for('admin_painel') }}" class="btn btn-ghost btn-sm">← Voltar</a>
+    {% if cliente.telefone and wa_link %}
+      <a href="{{ wa_link }}" target="_blank" class="btn btn-wa btn-sm">📲 Abrir WhatsApp</a>
+    {% else %}
+      <span class="btn btn-ghost btn-sm" style="opacity:.5;cursor:default">Sem telefone cadastrado</span>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

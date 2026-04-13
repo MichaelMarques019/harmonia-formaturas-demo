@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}{{ escola.nome }} — Vendedor{% endblock %}
+{% block extra_head %}
+<style>
+.wrap{max-width:860px;margin:0 auto;padding:40px 24px}
+.breadcrumb{display:flex;align-items:center;gap:8px;font-size:12px;color:var(--cream3);margin-bottom:24px;flex-wrap:wrap}
+.breadcrumb a{color:var(--blue)}
+.breadcrumb span{opacity:.4}
+.page-hd{margin-bottom:28px}
+.page-hd h2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:300;color:var(--cream)}
+.grid-cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px;margin-top:8px}
+.album-card{background:var(--bg2);border:.5px solid var(--line);border-radius:2px;
+            padding:22px;transition:all .2s;text-decoration:none;display:block}
+.album-card:hover{border-color:var(--line2)}
+.album-card h3{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:var(--cream);margin-bottom:6px}
+.album-card .desc{font-size:12px;color:var(--cream3);line-height:1.5;margin-bottom:12px}
+.album-card .meta{font-size:11px;color:var(--blue)}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="breadcrumb">
+    <a href="{{ url_for('vendedor_painel') }}">Início</a>
+    <span>/</span><span>{{ escola.nome }}</span>
+  </div>
+  <div class="page-hd">
+    <h2>{{ escola.nome }}</h2>
+    <p style="font-size:13px;color:var(--cream3)">{{ escola.albums|length }} álbum(s) disponíveis</p>
+  </div>
+  {% if escola.albums %}
+    <div class="grid-cards">
+      {% for album in escola.albums %}
+      <a href="{{ url_for('vendedor_album', album_id=album.id) }}" class="album-card">
+        <h3>{{ album.titulo }}</h3>
+        {% if album.descricao %}<p class="desc">{{ album.descricao }}</p>{% endif %}
+        <div class="meta">
+          {% if album.drive_url %}🔗 Link disponível{% else %}Sem link{% endif %}
+          · {{ album.vendas|length }} anotação(ões)
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  {% else %}
+    <div style="text-align:center;padding:48px;background:var(--bg2);border:.5px solid var(--line)">
+      <p style="font-size:13px;color:var(--cream3)">Nenhum álbum cadastrado para esta escola.</p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

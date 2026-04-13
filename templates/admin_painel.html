@@ -1,0 +1,368 @@
+{% extends "base.html" %}
+{% block title %}Painel Admin — Harmonia{% endblock %}
+{% block extra_head %}
+<style>
+.wrap{max-width:1040px;margin:0 auto;padding:36px 24px}
+.page-hd{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:24px;gap:16px;flex-wrap:wrap}
+.page-hd h2{font-family:'Cormorant Garamond',serif;font-size:28px;font-weight:400;color:var(--cream)}
+.hd-actions{display:flex;gap:7px;flex-wrap:wrap}
+.kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--line);margin-bottom:24px}
+.kpi{background:var(--bg2);padding:16px 20px}
+.kpi-v{font-family:'Cormorant Garamond',serif;font-size:32px;font-weight:300;line-height:1}
+.kpi-l{font-size:10px;color:var(--cream3);letter-spacing:1.5px;text-transform:uppercase;margin-top:4px}
+.filter-bar{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.search-inp{flex:1;min-width:160px;padding:9px 14px;background:rgba(255,255,255,.03);border:.5px solid var(--line);color:var(--cream);font-size:13px;font-family:'Jost',sans-serif;outline:none;border-radius:1px}
+.search-inp:focus{border-color:var(--line2)}
+.search-inp::placeholder{color:rgba(255,255,255,.2)}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{padding:5px 13px;font-size:10px;font-weight:500;letter-spacing:1px;text-transform:uppercase;border:.5px solid var(--line);border-radius:20px;color:var(--cream3);cursor:pointer;background:transparent;font-family:'Jost',sans-serif;text-decoration:none;transition:all .18s}
+.chip:hover{color:var(--cream);border-color:var(--line2)}
+.chip.on{background:var(--gold-glow);color:var(--gold);border-color:var(--line2)}
+.tabs{display:flex;border-bottom:.5px solid var(--line);margin-bottom:20px}
+.tab-btn{padding:9px 18px;font-size:11px;font-weight:500;letter-spacing:1px;text-transform:uppercase;color:var(--cream3);background:transparent;border:none;cursor:pointer;font-family:'Jost',sans-serif;border-bottom:2px solid transparent;transition:all .2s}
+.tab-btn:hover{color:var(--gold)}
+.tab-btn.on{color:var(--gold);border-bottom-color:var(--gold)}
+.tab-pane{display:none}.tab-pane.on{display:block}
+.lgnd{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:14px}
+.lgnd-i{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--cream3)}
+.tbl-head,.crow{display:grid;gap:12px;padding:11px 16px;font-size:13px}
+.tbl-head{background:transparent!important;border:none!important;margin-bottom:0!important;padding-top:6px;padding-bottom:6px;font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--cream3)}
+.crow{background:var(--bg2);border:.5px solid var(--line);margin-bottom:6px;align-items:center;transition:border-color .2s}
+.crow:hover{border-color:var(--line2)}
+.g-cli{grid-template-columns:1.5fr 1.3fr 76px 76px 88px 130px}
+.g-esc{grid-template-columns:1fr 80px 140px}
+.g-vnd{grid-template-columns:1.2fr 1fr 70px 80px 140px}
+.cname{font-weight:500;color:var(--cream)}
+.csub{font-size:11px;color:var(--cream3);margin-top:2px}
+.rowbtns{display:flex;gap:5px;flex-wrap:wrap}
+.ib{padding:5px 9px;background:transparent;border:.5px solid var(--line);color:var(--gold);font-size:10px;cursor:pointer;font-family:'Jost',sans-serif;transition:all .2s;letter-spacing:.5px;border-radius:1px;text-decoration:none;display:inline-flex;align-items:center}
+.ib:hover{background:var(--gold-glow);border-color:var(--line2);color:var(--gold)}
+.ib-del{color:var(--red);border-color:rgba(217,95,95,.2)}
+.ib-del:hover{background:var(--danger-bg);border-color:var(--danger-border);color:var(--red)}
+.ib-ok{color:var(--green);border-color:rgba(76,175,125,.2)}
+.ib-ok:hover{background:var(--success-bg);border-color:var(--success-border)}
+.empty-row{padding:28px;text-align:center;font-size:13px;color:var(--cream3);background:var(--bg2);border:.5px solid var(--line)}
+/* Chart */
+.chart-wrap{background:var(--bg2);border:.5px solid var(--line);padding:24px;margin-bottom:20px}
+.chart-wrap h3{font-family:'Cormorant Garamond',serif;font-size:18px;font-weight:400;color:var(--cream);margin-bottom:16px}
+/* Log */
+.log-row{display:flex;align-items:flex-start;gap:12px;padding:10px 0;border-bottom:.5px solid rgba(255,255,255,.05)}
+.log-row:last-child{border-bottom:none}
+.log-ico{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;margin-top:2px}
+.log-txt{flex:1;font-size:13px;color:var(--cream2)}
+.log-meta{font-size:11px;color:var(--cream3);margin-top:2px}
+.log-time{font-size:11px;color:var(--cream3);white-space:nowrap}
+@media(max-width:760px){.g-cli,.g-esc,.g-vnd{grid-template-columns:1fr auto}.tbl-head{display:none}.kpis{grid-template-columns:1fr 1fr}}
+
+/* backup banner */
+.backup-banner{display:flex;align-items:center;justify-content:space-between;gap:14px;
+               padding:13px 18px;border-radius:2px;margin-bottom:20px;flex-wrap:wrap}
+.backup-alerta{background:rgba(217,95,95,.08);border:.5px solid var(--danger-border);
+               border-left:3px solid var(--red)}
+.backup-ok    {background:rgba(76,175,125,.06);border:.5px solid var(--success-border);
+               border-left:3px solid var(--green)}
+.backup-nunca {background:rgba(232,167,58,.08);border:.5px solid var(--warn-border);
+               border-left:3px solid var(--orange)}
+.backup-banner .bico{font-size:20px;flex-shrink:0}
+.backup-banner .btxt h4{font-size:13px;font-weight:500;margin-bottom:3px}
+.backup-alerta .btxt h4{color:var(--red)}
+.backup-ok     .btxt h4{color:var(--green)}
+.backup-nunca  .btxt h4{color:var(--orange)}
+.backup-banner .btxt p{font-size:11px;color:var(--cream3);line-height:1.5}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <div class="page-hd">
+    <div><h2>Painel Administrativo</h2><p style="font-size:12px;color:var(--cream3);margin-top:3px">Harmonia Formaturas & Buffet</p></div>
+    <div class="hd-actions">
+      <a href="{{ url_for('admin_nova_escola') }}"  class="btn btn-ghost btn-sm">+ Escola</a>
+      <a href="{{ url_for('admin_novo_album') }}"   class="btn btn-outline btn-sm">+ Álbum</a>
+      <a href="{{ url_for('admin_lote_whatsapp') }}" class="btn btn-wa btn-sm">📲 Lote</a>
+      <a href="{{ url_for('admin_backup') }}"        class="btn btn-ghost btn-sm">💾 Backup</a>
+      <a href="{{ url_for('admin_arquivos') }}"          class="btn btn-ghost btn-sm">📦 Disco</a>
+      <a href="{{ url_for('admin_painel') }}"     class="btn btn-ghost btn-sm">⭐ Avaliações</a>
+      <a href="{{ url_for('admin_painel') }}"   class="btn btn-ghost btn-sm">🔒 Segurança</a>
+      <a href="{{ url_for('admin_novo_cliente') }}"  class="btn btn-gold btn-sm">+ Cliente</a>
+    </div>
+  </div>
+
+  <div class="kpis">
+    <div class="kpi"><div class="kpi-v" style="color:var(--gold)">{{ total }}</div><div class="kpi-l">Clientes</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:var(--green)">{{ baixaram }}</div><div class="kpi-l">Baixaram</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:var(--orange)">{{ aguardando }}</div><div class="kpi-l">Aguardando</div></div>
+    <div class="kpi"><div class="kpi-v" style="color:var(--red)">{{ expirados }}</div><div class="kpi-l">Expirados</div></div>
+  </div>
+
+
+  <!-- ── Banner de backup ── -->
+  {% if dias_sem_backup >= 999 %}
+  <div class="backup-banner backup-nunca">
+    <span class="bico">💾</span>
+    <div class="btxt" style="flex:1">
+      <h4>Nenhum backup realizado ainda</h4>
+      <p>Você ainda não fez nenhum backup do banco de dados. Faça agora para proteger seus dados!</p>
+    </div>
+    <a href="{{ url_for('admin_backup') }}" class="btn btn-gold btn-sm">💾 Fazer backup agora</a>
+  </div>
+  {% elif alerta_backup %}
+  <div class="backup-banner backup-alerta">
+    <span class="bico">⚠️</span>
+    <div class="btxt" style="flex:1">
+      <h4>Backup atrasado — {{ dias_sem_backup }} dia{{ 's' if dias_sem_backup != 1 else '' }} sem backup!</h4>
+      <p>Último backup: {{ ultimo_backup_str }}. Recomendamos fazer backup semanalmente para não perder dados.</p>
+    </div>
+    <a href="{{ url_for('admin_backup') }}" class="btn btn-gold btn-sm">💾 Fazer backup agora</a>
+  </div>
+  {% else %}
+  <div class="backup-banner backup-ok">
+    <span class="bico">✅</span>
+    <div class="btxt" style="flex:1">
+      <h4>Backup em dia</h4>
+      <p>Último backup: {{ ultimo_backup_str }} (há {{ dias_sem_backup }} dia{{ 's' if dias_sem_backup != 1 else '' }}).
+         Próximo lembrete em {{ 7 - dias_sem_backup }} dia{{ 's' if (7 - dias_sem_backup) != 1 else '' }}.</p>
+    </div>
+    <a href="{{ url_for('admin_backup') }}" class="btn btn-ghost btn-sm">💾 Baixar backup</a>
+  </div>
+  {% endif %}
+
+  <div class="tabs">
+    <button class="tab-btn on" onclick="showTab('clientes',this)">Clientes</button>
+    <button class="tab-btn"   onclick="showTab('dashboard',this)">Dashboard</button>
+    <button class="tab-btn"   onclick="showTab('escolas',this)">Escolas & Álbuns</button>
+    <button class="tab-btn"   onclick="showTab('vendedores',this)">Vendedores</button>
+    <button class="tab-btn"   onclick="showTab('log',this)">Histórico</button>
+    <button class="tab-btn"   onclick="showTab('calendario',this)">Calendário</button>
+    <button class="tab-btn"   onclick="showTab('ranking',this)">Ranking</button>
+  </div>
+
+  <!-- ── CLIENTES ── -->
+  <div class="tab-pane on" id="tab-clientes">
+    <form method="GET">
+      <div class="filter-bar">
+        <input class="search-inp" type="text" name="q" value="{{ busca }}" placeholder="Buscar cliente...">
+        <div class="chips">
+          <a href="?status=todos{% if busca %}&q={{ busca }}{% endif %}"   class="chip {% if filtro_status=='todos'    %}on{% endif %}">Todos</a>
+          <a href="?status=baixou{% if busca %}&q={{ busca }}{% endif %}"  class="chip {% if filtro_status=='baixou'   %}on{% endif %}">Baixou</a>
+          <a href="?status=pendente{% if busca %}&q={{ busca }}{% endif %}" class="chip {% if filtro_status=='pendente' %}on{% endif %}">Pendente</a>
+          <a href="?status=expirado{% if busca %}&q={{ busca }}{% endif %}" class="chip {% if filtro_status=='expirado' %}on{% endif %}">Expirado</a>
+        </div>
+      </div>
+    </form>
+    <div class="lgnd">
+      <div class="lgnd-i"><div class="dot dot-g"></div>Baixou</div>
+      <div class="lgnd-i"><div class="dot dot-o"></div>Visualizou / não baixou</div>
+      <div class="lgnd-i"><div class="dot dot-gr"></div>Não acessou</div>
+      <div class="lgnd-i"><div class="dot dot-r"></div>Expirado</div>
+    </div>
+    {% if clientes %}
+      <div class="tbl-head g-cli crow"><span>Cliente</span><span>Álbum</span><span>Visualizou</span><span>Baixou</span><span>Expira</span><span>Ações</span></div>
+      {% for c in clientes %}
+        {% set ac = c.acessos[-1] if c.acessos else none %}
+        {% set dv = 'dot-g' if (ac and ac.baixado) else ('dot-o' if (ac and ac.visualizado) else ('dot-r' if (ac and ac.expirado) else 'dot-gr')) %}
+        {% set dd = 'dot-g' if (ac and ac.baixado) else ('dot-r' if (ac and ac.expirado) else 'dot-gr') %}
+        <div class="crow g-cli">
+          <div><div class="cname">{{ c.nome }}</div><div class="csub">{{ c.evento or '—' }} · <span style="opacity:.6">{{ c.login }}</span></div>{% for tag in c.tags %}<span class="tag tag-{{ tag.cor }}">{{ tag.texto }}</span>{% endfor %}</div>
+          <div>{% if ac %}<div style="font-size:13px;color:var(--cream2)">{{ ac.album.titulo }}</div><div class="csub">{{ ac.album.escola.nome }}</div>{% else %}<span class="csub">Sem álbum</span>{% endif %}</div>
+          <div class="sdot"><div class="dot {{ dv }}"></div>{{ 'Sim' if (ac and ac.visualizado) else ('Exp.' if (ac and ac.expirado) else 'Não') }}</div>
+          <div class="sdot"><div class="dot {{ dd }}"></div>{{ 'Sim' if (ac and ac.baixado) else ('Exp.' if (ac and ac.expirado and not ac.baixado) else 'Não') }}</div>
+          <div style="font-size:12px;color:{% if ac and ac.dias_restantes<=2 and not ac.expirado %}var(--orange){% elif ac and ac.expirado %}var(--red){% else %}var(--cream3){% endif %}">
+            {% if ac %}{{ ac.expira_em.strftime('%d/%m/%y') if ac.expira_em else '—' }}<br><span style="font-size:10px">{% if ac.expirado %}Expirado{% else %}{{ ac.dias_restantes }}d{% endif %}</span>{% else %}—{% endif %}
+          </div>
+          <div class="rowbtns">
+            <a href="{{ url_for('admin_whatsapp', cliente_id=c.id) }}" class="ib" title="WhatsApp">📲</a>
+            {% if ac and ac.dias_restantes <= 3 and not ac.expirado %}<a href="{{ url_for('admin_lembrete', cliente_id=c.id) }}" class="ib ib-ok" title="Lembrete">⏰</a>{% endif %}
+            <a href="{{ url_for('admin_editar_cliente', cliente_id=c.id) }}" class="ib">Editar</a>
+            <button class="ib ib-del" onclick="confirmAction('{{ url_for('admin_excluir_cliente', cliente_id=c.id) }}','Excluir cliente','Remover {{ c.nome }}?')">✕</button>
+          </div>
+        </div>
+      {% endfor %}
+    {% else %}
+      <div class="empty-row">Nenhum cliente encontrado.</div>
+    {% endif %}
+  </div>
+
+  <!-- ── DASHBOARD ── -->
+  <div class="tab-pane" id="tab-dashboard">
+    <div class="chart-wrap">
+      <h3>Atividade — últimos 7 dias</h3>
+      <canvas id="actChart" height="80"></canvas>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="chart-wrap" style="margin-bottom:0">
+        <h3>Downloads × Visualizações</h3>
+        <canvas id="pieChart" height="160"></canvas>
+      </div>
+      <div class="chart-wrap" style="margin-bottom:0">
+        <h3>Resumo geral</h3>
+        {% set t = total if total > 0 else 1 %}
+        <div style="margin-top:8px">
+          {% for lbl, val, cor in [('Baixaram', baixaram, 'var(--green)'), ('Aguardando', aguardando, 'var(--orange)'), ('Expirados', expirados, 'var(--red)')] %}
+          <div style="margin-bottom:12px">
+            <div style="display:flex;justify-content:space-between;font-size:12px;margin-bottom:4px">
+              <span style="color:var(--cream3)">{{ lbl }}</span>
+              <span style="color:{{ cor }}">{{ val }} ({{ (val/t*100)|round|int }}%)</span>
+            </div>
+            <div style="height:4px;background:rgba(255,255,255,.06);border-radius:2px;overflow:hidden">
+              <div style="height:100%;width:{{ (val/t*100)|round|int }}%;background:{{ cor }}"></div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ESCOLAS ── -->
+  <div class="tab-pane" id="tab-escolas">
+    {% for escola in escolas %}
+    <div style="margin-bottom:20px">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px">
+        <span style="font-family:'Cormorant Garamond',serif;font-size:18px;color:var(--cream)">{{ escola.nome }}</span>
+        <div class="rowbtns">
+          <a href="{{ url_for('admin_novo_album') }}?escola_id={{ escola.id }}" class="ib">+ Álbum</a>
+          <a href="{{ url_for('admin_editar_escola', escola_id=escola.id) }}" class="ib">Editar</a>
+          <button class="ib ib-del" onclick="confirmAction('{{ url_for('admin_excluir_escola', escola_id=escola.id) }}','Excluir escola','Remove {{ escola.nome }} e todos os álbuns.')">✕</button>
+        </div>
+      </div>
+      {% for album in escola.albums %}
+      <div class="crow g-esc" style="margin-left:16px">
+        <div><div style="font-size:13px;color:var(--cream2)">{{ album.titulo }}</div>{% if album.descricao %}<div class="csub">{{ album.descricao }}</div>{% endif %}{% if album.drive_url %}<div class="csub" style="color:var(--blue)">🔗 Drive configurado</div>{% endif %}</div>
+        <div class="csub">{{ album.clientes|length }} cliente(s)</div>
+        <div class="rowbtns"><a href="{{ url_for('admin_editar_album', album_id=album.id) }}" class="ib">Editar</a><button class="ib ib-del" onclick="confirmAction('{{ url_for('admin_excluir_album', album_id=album.id) }}','Excluir álbum','Remove {{ album.titulo }}.')">✕</button></div>
+      </div>
+      {% else %}<div class="csub" style="margin-left:16px;padding:8px 0">Nenhum álbum. <a href="{{ url_for('admin_novo_album') }}">Adicionar →</a></div>{% endfor %}
+    </div>
+    {% else %}<div class="empty-row">Nenhuma escola. <a href="{{ url_for('admin_nova_escola') }}">Criar →</a></div>{% endfor %}
+  </div>
+
+  <!-- ── VENDEDORES ── -->
+  <div class="tab-pane" id="tab-vendedores">
+    <div style="display:flex;justify-content:flex-end;margin-bottom:14px">
+      <a href="{{ url_for('admin_novo_vendedor') }}" class="btn btn-blue btn-sm">+ Novo vendedor</a>
+    </div>
+    {% if vendedores %}
+      <div class="tbl-head g-vnd crow"><span>Nome / Login</span><span>Escolas</span><span>Ativo</span><span>Vendas/mês</span><span>Ações</span></div>
+      {% for v in vendedores %}
+      <div class="crow g-vnd">
+        <div><div class="cname">{{ v.nome }}</div><div class="csub">{{ v.login }}</div></div>
+        <div class="csub">{% set ids=v.get_escolas_ids() %}{% if ids %}{{ ids|length }} escola(s){% else %}Todas{% endif %}</div>
+        <div><span class="badge {% if v.ativo %}badge-ok{% else %}badge-exp{% endif %}">{{ 'Ativo' if v.ativo else 'Inativo' }}</span></div>
+        <div style="font-size:14px;color:var(--green);font-weight:500">{{ v.total_vendas_mes }}</div>
+        <div class="rowbtns"><a href="{{ url_for('admin_editar_vendedor', vid=v.id) }}" class="ib">Editar</a><button class="ib ib-del" onclick="confirmAction('{{ url_for('admin_excluir_vendedor', vid=v.id) }}','Excluir vendedor','Remove {{ v.nome }}.')">✕</button></div>
+      </div>
+      {% endfor %}
+    {% else %}<div class="empty-row">Nenhum vendedor. <a href="{{ url_for('admin_novo_vendedor') }}">Criar →</a></div>{% endif %}
+  </div>
+
+  <!-- ── HISTÓRICO ── -->
+  <div class="tab-pane" id="tab-log">
+    <div style="max-height:520px;overflow-y:auto;padding-right:4px">
+      {% for entry in log %}
+      {% set ico = {'cliente_criado':'👤','album_criado':'📸','visualizou':'👁','baixou':'⬇','prazo_renovado':'🔁','admin_login':'🔐','backup':'💾','escola_criada':'🏫','vendedor_criado':'🧑‍💼'}.get(entry.tipo, '📋') %}
+      {% set bg  = {'baixou':'var(--success-bg)','visualizou':'var(--warn-bg)','admin_login':'var(--blue-bg)'}.get(entry.tipo, 'var(--bg3)') %}
+      <div class="log-row">
+        <div class="log-ico" style="background:{{ bg }}">{{ ico }}</div>
+        <div class="log-txt">
+          {{ entry.descricao }}
+          <div class="log-meta">por {{ entry.usuario }}</div>
+        </div>
+        <div class="log-time">{{ entry.criado_em.strftime('%d/%m %H:%M') }}</div>
+      </div>
+      {% else %}
+      <p style="font-size:13px;color:var(--cream3);padding:20px 0">Nenhuma atividade registrada ainda.</p>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- ── CALENDÁRIO ── -->
+  <div class="tab-pane" id="tab-calendario">
+    <p style="font-size:13px;color:var(--cream3);margin-bottom:20px">Clientes com prazo expirando nos próximos 30 dias.</p>
+    <div id="cal-wrap" style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px"></div>
+  </div>
+
+  <!-- ── RANKING ── -->
+  <div class="tab-pane" id="tab-ranking">
+    <p style="font-size:13px;color:var(--cream3);margin-bottom:20px">Ranking de vendedores no mês atual.</p>
+    {% if ranking %}
+    <div style="display:grid;gap:10px">
+      {% for r in ranking %}
+      <div style="display:grid;grid-template-columns:32px 1fr 80px 100px 100px;align-items:center;gap:12px;padding:14px 18px;background:var(--bg2);border:.5px solid var(--line);border-radius:1px;{% if loop.first %}border-color:var(--gold);{% endif %}">
+        <div style="font-family:'Cormorant Garamond',serif;font-size:22px;color:{% if loop.first %}var(--gold){% else %}var(--cream3){% endif %};text-align:center">{{ loop.index }}</div>
+        <div><div style="font-weight:500;color:var(--cream)">{{ r.vendedor.nome }}</div><div style="font-size:11px;color:var(--cream3)">{{ r.total }} atendimento(s)</div></div>
+        <div style="font-size:13px;color:var(--green)">{{ r.vendidos }} vendido(s)</div>
+        <div style="font-size:13px;color:var(--gold)">{% if r.valor %}R$ {{ '%.2f'|format(r.valor) }}{% else %}—{% endif %}</div>
+        <div><span class="badge {% if r.vendedor.ativo %}badge-ok{% else %}badge-exp{% endif %}">{{ 'Ativo' if r.vendedor.ativo else 'Inativo' }}</span></div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-row">Nenhum vendedor cadastrado ainda.</div>
+    {% endif %}
+  </div>
+
+</div>
+{% endblock %}
+{% block extra_js %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script>
+function showTab(t, btn) {
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('on'));
+  document.getElementById('tab-'+t).classList.add('on');
+  if(btn) btn.classList.add('on');
+  if(t==='dashboard') initCharts(); if(t==='calendario') buildCal();
+}
+var chartsInit = false;
+
+// Calendar
+var calData = {{ cal_exp|safe }};
+var hoje = new Date("{{ hoje }}T00:00:00");
+function buildCal(){
+  var wrap = document.getElementById('cal-wrap');
+  if(!wrap || wrap.children.length) return;
+  for(var i=0;i<30;i++){
+    var d = new Date(hoje); d.setDate(d.getDate()+i);
+    var key = d.toISOString().split('T')[0];
+    var n = calData[key] || 0;
+    var el = document.createElement('div');
+    el.style.cssText='padding:8px 4px;text-align:center;background:var(--bg2);border:.5px solid '+(n>0?'var(--orange)':'var(--line)')+';border-radius:1px;font-size:11px';
+    el.innerHTML='<div style="color:var(--cream3);font-size:10px">'+d.toLocaleDateString('pt-BR',{day:'2-digit',month:'2-digit'})+'</div>'+(n>0?'<div style="color:var(--orange);font-weight:500;margin-top:3px">'+n+'</div>':'<div style="color:rgba(128,128,128,.2);margin-top:3px">—</div>');
+    wrap.appendChild(el);
+  }
+}
+
+function initCharts(){
+  if(chartsInit) return;
+  chartsInit = true;
+  var labels    = {{ graf_labels|safe }};
+  var baixaram  = {{ graf_baixaram|safe }};
+  var viram     = {{ graf_viram|safe }};
+  var style = getComputedStyle(document.documentElement);
+  var gold  = '#C9A84C', green = '#4CAF7D', cream3 = '#8C7E6A';
+  new Chart(document.getElementById('actChart'), {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {label:'Baixaram', data:baixaram, backgroundColor:'rgba(76,175,125,.5)', borderColor:green, borderWidth:1},
+        {label:'Visualizaram', data:viram, backgroundColor:'rgba(201,168,76,.3)', borderColor:gold, borderWidth:1}
+      ]
+    },
+    options:{responsive:true,plugins:{legend:{labels:{color:cream3,font:{size:11}}}},
+      scales:{x:{ticks:{color:cream3},grid:{color:'rgba(255,255,255,.05)'}},
+              y:{ticks:{color:cream3,stepSize:1},grid:{color:'rgba(255,255,255,.05)'}}}}
+  });
+  new Chart(document.getElementById('pieChart'), {
+    type: 'doughnut',
+    data: {
+      labels: ['Baixaram','Aguardando','Expirados'],
+      datasets:[{data:[{{ baixaram }},{{ aguardando }},{{ expirados }}],
+        backgroundColor:['rgba(76,175,125,.6)','rgba(232,167,58,.6)','rgba(217,95,95,.6)'],
+        borderColor:['#4CAF7D','#E8A73A','#D95F5F'],borderWidth:1}]
+    },
+    options:{responsive:true,plugins:{legend:{labels:{color:cream3,font:{size:11}}}}}
+  });
+}
+</script>
+{% endblock %}

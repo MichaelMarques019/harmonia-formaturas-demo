@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}Gerenciar Arquivos — Admin{% endblock %}
+{% block extra_head %}
+<style>
+.wrap{max-width:900px;margin:0 auto;padding:36px 22px}
+.wrap h2{font-family:'Cormorant Garamond',serif;font-size:26px;font-weight:400;color:var(--cream);margin-bottom:6px}
+.wrap .sub{font-size:13px;color:var(--cream3);margin-bottom:28px}
+.disk-bar{background:var(--bg2);border:.5px solid var(--line);padding:16px 20px;margin-bottom:24px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.disk-bar .val{font-family:'Cormorant Garamond',serif;font-size:28px;color:var(--gold);font-weight:300}
+.disk-bar .lbl{font-size:11px;color:var(--cream3);letter-spacing:1px;text-transform:uppercase;margin-top:3px}
+.tbl-head,.frow-item{display:grid;grid-template-columns:1fr 90px 1.2fr 90px 80px;gap:12px;align-items:center;padding:11px 16px;font-size:13px}
+.tbl-head{font-size:10px;font-weight:500;letter-spacing:1.5px;text-transform:uppercase;color:var(--cream3);background:transparent;border:none}
+.frow-item{background:var(--bg2);border:.5px solid var(--line);margin-bottom:6px;transition:border-color .2s}
+.frow-item:hover{border-color:var(--line2)}
+.fname{font-size:12px;color:var(--cream2);font-family:monospace;word-break:break-all}
+.orfao-badge{display:inline-flex;align-items:center;padding:3px 9px;background:var(--warn-bg);color:var(--orange);border:.5px solid var(--warn-border);border-radius:20px;font-size:10px}
+.ib{padding:5px 9px;background:transparent;border:.5px solid var(--line);color:var(--red);font-size:10px;cursor:pointer;font-family:'Jost',sans-serif;border-radius:1px;transition:all .2s}
+.ib:hover{background:var(--danger-bg);border-color:var(--danger-border)}
+@media(max-width:640px){.tbl-head{display:none}.frow-item{grid-template-columns:1fr auto}}
+</style>
+{% endblock %}
+{% block content %}
+<div class="wrap">
+  <h2>📦 Arquivos no servidor</h2>
+  <p class="sub">Gerencie os arquivos enviados. Exclua arquivos órfãos para liberar espaço.</p>
+
+  <div class="disk-bar">
+    <div><div class="val">{{ total }}</div><div class="lbl">Espaço usado</div></div>
+    <div style="width:1px;height:40px;background:var(--line)"></div>
+    <div><div class="val" style="font-size:22px">{{ qtd }}</div><div class="lbl">Arquivo(s)</div></div>
+    {% set orfaos = arquivos|selectattr('orfao')|list|length %}
+    {% if orfaos %}
+    <div style="margin-left:auto"><span class="orfao-badge">⚠ {{ orfaos }} órfão(s)</span></div>
+    {% endif %}
+  </div>
+
+  {% if arquivos %}
+    <div class="tbl-head"><span>Arquivo</span><span>Tamanho</span><span>Álbum</span><span>Data</span><span>Ação</span></div>
+    {% for arq in arquivos %}
+    <div class="frow-item">
+      <div>
+        <div class="fname">{{ arq.nome }}</div>
+        {% if arq.orfao %}<span class="orfao-badge" style="margin-top:4px">Órfão</span>{% endif %}
+      </div>
+      <div style="font-size:13px;color:var(--cream2)">{{ arq.tamanho }}</div>
+      <div>
+        {% if arq.album %}
+          <div style="font-size:13px;color:var(--cream2)">{{ arq.album.titulo }}</div>
+          <div style="font-size:11px;color:var(--cream3)">{{ arq.album.escola.nome }}</div>
+        {% else %}
+          <span style="font-size:12px;color:var(--cream3)">Sem álbum associado</span>
+        {% endif %}
+      </div>
+      <div style="font-size:11px;color:var(--cream3)">{{ arq.modificado }}</div>
+      <div>
+        <button class="ib"
+          onclick="confirmAction('{{ url_for('admin_excluir_arquivo', fname=arq.nome) }}',
+            'Excluir arquivo','Remover {{ arq.nome }} do servidor? Esta ação não pode ser desfeita.')">
+          Excluir
+        </button>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+    <div style="text-align:center;padding:48px;background:var(--bg2);border:.5px solid var(--line)">
+      <p style="font-size:13px;color:var(--cream3)">Nenhum arquivo enviado ainda.</p>
+    </div>
+  {% endif %}
+
+  <div style="margin-top:24px">
+    <a href="{{ url_for('admin_painel') }}" class="btn btn-ghost btn-sm">← Voltar ao painel</a>
+  </div>
+</div>
+{% endblock %}

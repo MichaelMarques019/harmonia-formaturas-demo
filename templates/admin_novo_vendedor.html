@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Novo Vendedor — Harmonia{% endblock %}
+{% block content %}
+<div class="form-wrap">
+  <h2>Novo vendedor</h2>
+  <p class="sub">Crie o acesso para um vendedor visualizar o portfólio de álbuns.</p>
+  <form method="POST">
+    <p class="section-sep">Dados do vendedor</p>
+    <div class="frow">
+      <div class="fg"><label>Nome completo *</label><input type="text" name="nome" placeholder="João Silva" required></div>
+      <div class="fg"><label>Login *</label><input type="text" name="login" placeholder="joaosilva" required></div>
+    </div>
+    <div class="fg"><label>Senha *</label><input type="text" name="senha" placeholder="vendedor2024" required><p class="form-hint">Clique em 🎲 para gerar: <button type="button" style="background:none;border:none;color:var(--gold);cursor:pointer;font-size:14px" onclick="gerarSenha()">🎲</button></p></div>
+    <p class="section-sep">Escolas visíveis</p>
+    <p class="form-hint" style="margin-bottom:12px">Deixe sem marcar para o vendedor ver TODAS as escolas.</p>
+    <div class="checkbox-group">
+      {% for e in escolas %}
+        <label class="checkbox-item">
+          <input type="checkbox" name="escolas_ids" value="{{ e.id }}">
+          <label style="cursor:pointer">{{ e.nome }}</label>
+        </label>
+      {% else %}
+        <p style="font-size:13px;color:var(--cream3)">Nenhuma escola cadastrada ainda.</p>
+      {% endfor %}
+    </div>
+    <div class="form-actions" style="margin-top:28px">
+      <a href="{{ url_for('admin_painel') }}" class="btn btn-ghost btn-sm">Cancelar</a>
+      <button type="submit" class="btn btn-gold btn-sm">Criar vendedor</button>
+    </div>
+  </form>
+</div>
+{% endblock %}
+{% block extra_js %}
+<script>
+function gerarSenha() {
+  const c = 'abcdefghjkmnpqrstuvwxyz23456789';
+  let s = '';
+  for (let i = 0; i < 8; i++) s += c[Math.floor(Math.random()*c.length)];
+  document.querySelector('input[name=senha]').value = s;
+}
+</script>
+{% endblock %}
